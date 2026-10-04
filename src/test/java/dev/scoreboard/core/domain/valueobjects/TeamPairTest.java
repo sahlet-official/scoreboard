@@ -65,4 +65,13 @@ class TeamPairTest {
 
         assertThat(samePair).isFalse();
     }
+
+    @Test
+    void shouldBeCreatedFromTeamNamesGivenAsText() {
+        TeamPair expected = new TeamPair(new TeamName("Mexico"), new TeamName("Canada"));
+
+        TeamPair teams = TeamPair.of("Mexico", "Canada");
+
+        assertThat(teams).isEqualTo(expected);
+    }
 }

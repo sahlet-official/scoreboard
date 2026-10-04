@@ -7,6 +7,12 @@ public record TeamPair(TeamName homeTeam, TeamName awayTeam) {
         ensureTeamsAreDifferent(homeTeam, awayTeam);
     }
 
+    public static TeamPair of(String homeTeamName, String awayTeamName) {
+        TeamName homeTeam = new TeamName(homeTeamName);
+        TeamName awayTeam = new TeamName(awayTeamName);
+        return new TeamPair(homeTeam, awayTeam);
+    }
+
     private static void ensureTeamIsNotNull(TeamName team) {
         if (team == null) {
             throw new NullPointerException("Team must not be null");
