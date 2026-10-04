@@ -128,6 +128,15 @@ public abstract class GameRepositoryContractTest {
     }
 
     @Test
+    void shouldFindNothingByTeamsThatShareOnlyHomeTeamWithAddedGame() throws TeamsNotUniqueException {
+        gameRepository.addGameWithUniqueTeams(NEW_GAME);
+
+        Optional<Game> foundGame = gameRepository.findGame(MEXICO_BRAZIL);
+
+        assertThat(foundGame).isEmpty();
+    }
+
+    @Test
     void shouldListAllAddedGames() throws TeamsNotUniqueException {
         gameRepository.addGameWithUniqueTeams(NEW_GAME);
         gameRepository.addGameWithUniqueTeams(ANOTHER_NEW_GAME);
