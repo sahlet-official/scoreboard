@@ -47,7 +47,31 @@ public class GameStartUseCase implements GameStartPort {
             return new GameAlreadyInProgressException(teams, conflictingGameId);
         }
 
-        TeamName busyTeamName = teams.homeTeam();
+        TeamName busyTeamName = findCommonTeamName(teams, conflictingTeams);
         return new TeamAlreadyPlayingException(busyTeamName, conflictingGameId);
+    }
+
+    private static TeamName findCommonTeamName(TeamPair teams, TeamPair otherTeams) {
+        TeamName homeTeam = teams.homeTeam();
+        boolean homeTeamIsCommon = contains(otherTeams, homeTeam);
+        if (homeTeamIsCommon) {
+            return homeTeam;
+        }
+
+        TeamName awayTeam = teams.awayTeam();
+        boolean awayTeamIsCommon = contains(otherTeams, awayTeam);
+        if (awayTeamIsCommon) {
+            return awayTeam;
+        }
+
+        throw new IllegalStateException("Team pairs have no common team");
+    }
+
+    private static boolean contains(TeamPair teams, TeamName teamName) {
+        TeamName homeTeam = teams.homeTeam();
+        TeamName awayTeam = teams.awayTeam();
+        boolean isHomeTeam = teamName.equals(homeTeam);
+        boolean isAwayTeam = teamName.equals(awayTeam);
+        return isHomeTeam || isAwayTeam;
     }
 }
