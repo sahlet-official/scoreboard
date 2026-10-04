@@ -15,6 +15,7 @@ import org.junit.jupiter.api.Test;
 
 public abstract class GameRepositoryContractTest {
     private static final TeamPair MEXICO_CANADA = TeamPair.of("Mexico", "Canada");
+    private static final TeamPair CANADA_MEXICO = TeamPair.of("Canada", "Mexico");
     private static final TeamPair SPAIN_BRAZIL = TeamPair.of("Spain", "Brazil");
     private static final Score SCORE = new Score(2, 1);
     private static final int SCORE_REVISION = 3;
@@ -86,6 +87,15 @@ public abstract class GameRepositoryContractTest {
         gameRepository.addGameWithUniqueTeams(NEW_GAME);
 
         Optional<Game> foundGame = gameRepository.findGame(SPAIN_BRAZIL);
+
+        assertThat(foundGame).isEmpty();
+    }
+
+    @Test
+    void shouldFindNothingByTeamsOfAddedGameInReverseOrder() throws TeamsNotUniqueException {
+        gameRepository.addGameWithUniqueTeams(NEW_GAME);
+
+        Optional<Game> foundGame = gameRepository.findGame(CANADA_MEXICO);
 
         assertThat(foundGame).isEmpty();
     }
