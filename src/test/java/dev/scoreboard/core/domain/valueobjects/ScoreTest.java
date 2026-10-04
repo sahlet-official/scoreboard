@@ -51,4 +51,16 @@ class ScoreTest {
 
         assertThat(sameScore).isTrue();
     }
+
+    @Test
+    void shouldTreatSwappedScoresAsDifferentScores() {
+        int two = 2;
+        int one = 1;
+        Score homeLeads = new Score(two, one);
+        Score awayLeads = new Score(one, two);
+
+        boolean sameScore = homeLeads.equals(awayLeads);
+
+        assertThat(sameScore).isFalse();
+    }
 }
