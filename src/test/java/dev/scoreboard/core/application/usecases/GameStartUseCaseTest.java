@@ -179,6 +179,17 @@ class GameStartUseCaseTest {
         assertThat(reportsTeamNameAndGameId).isTrue();
     }
 
+    @Test
+    void shouldFailWhenRepositoryReportsConflictWithUnrelatedGame() {
+        TeamPair unrelatedTeams = TeamPair.of("Spain", "Brazil");
+        Game unrelatedGame = gameInProgress(unrelatedTeams);
+        gameStartRepositoryStub.setGameWronglyReportedAsConflicting(unrelatedGame);
+
+        Throwable failure = catchThrowable(() -> gameStartUseCase.execute(TEAMS));
+
+        assertThat(failure).isInstanceOf(IllegalStateException.class);
+    }
+
     private static Game gameInProgress(TeamPair teams) {
         GameId id = new GameId(3);
         long sequenceNumber = 3;
