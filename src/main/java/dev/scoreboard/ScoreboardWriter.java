@@ -29,7 +29,7 @@ public interface ScoreboardWriter {
      * @throws StaleScoreRevisionException if the revision is less than or equal to the current one
      * @throws ScoreRevisionGapException if the revision is more than one ahead of the current one
      */
-    UpdateScoreResult updateScore(GameScore score);
+    UpdateScoreResult updateScore(GameScore gameScore);
 
     /**
      * Finishes a game and removes it from the scoreboard.

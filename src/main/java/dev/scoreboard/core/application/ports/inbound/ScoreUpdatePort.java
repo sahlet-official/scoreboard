@@ -4,5 +4,5 @@ import dev.scoreboard.core.application.ports.inbound.models.UpdateScoreResult;
 import dev.scoreboard.core.domain.valueobjects.GameScore;
 
 public interface ScoreUpdatePort {
-    UpdateScoreResult execute(GameScore score);
+    UpdateScoreResult execute(GameScore gameScore);
 }

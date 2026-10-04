@@ -43,8 +43,8 @@ class ScoreboardImpl implements Scoreboard {
     }
 
     @Override
-    public UpdateScoreResult updateScore(GameScore score) {
-        return scoreUpdatePort.execute(score);
+    public UpdateScoreResult updateScore(GameScore gameScore) {
+        return scoreUpdatePort.execute(gameScore);
     }
 
     @Override

@@ -32,7 +32,7 @@ public interface GameRepository {
      * @throws GameMissingException if there is no such game
      * @throws ScoreRevisionConflictException if the stored revision is different
      */
-    void updateScoreIfNextRevision(GameScore score)
+    void updateScoreIfNextRevision(GameScore gameScore)
             throws GameMissingException, ScoreRevisionConflictException;
 
     /**

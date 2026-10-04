@@ -22,11 +22,11 @@ public class ScoreUpdateUseCase implements ScoreUpdatePort {
     }
 
     @Override
-    public UpdateScoreResult execute(GameScore score) {
-        ensureScoreIsNotNull(score);
+    public UpdateScoreResult execute(GameScore gameScore) {
+        ensureGameScoreIsNotNull(gameScore);
 
         try {
-            gameRepository.updateScoreIfNextRevision(score);
+            gameRepository.updateScoreIfNextRevision(gameScore);
             return UpdateScoreResult.UPDATED;
 
         } catch (GameMissingException exception) {
@@ -35,30 +35,31 @@ public class ScoreUpdateUseCase implements ScoreUpdatePort {
 
         } catch (ScoreRevisionConflictException exception) {
             Game currentGame = exception.getCurrentGame();
-            GameScore currentScore = createGameScore(currentGame);
-            return resolveRevisionConflict(score, currentScore);
+            GameScore currentGameScore = createGameScore(currentGame);
+            return resolveRevisionConflict(gameScore, currentGameScore);
         }
     }
 
-    private static UpdateScoreResult resolveRevisionConflict(GameScore score, GameScore currentScore) {
-        boolean currentScoreSentAgain = score.equals(currentScore);
+    private static UpdateScoreResult resolveRevisionConflict(GameScore gameScore, GameScore currentGameScore) {
+        boolean currentScoreSentAgain = gameScore.equals(currentGameScore);
         if (currentScoreSentAgain) {
             return UpdateScoreResult.UNCHANGED;
         }
 
-        throw createRevisionConflictException(score, currentScore);
+        throw createRevisionConflictException(gameScore, currentGameScore);
     }
 
-    private static ScoreboardException createRevisionConflictException(GameScore score, GameScore currentScore) {
-        int receivedRevision = score.scoreRevision();
-        int currentRevision = currentScore.scoreRevision();
+    private static ScoreboardException createRevisionConflictException(
+            GameScore gameScore, GameScore currentGameScore) {
+        int receivedRevision = gameScore.scoreRevision();
+        int currentRevision = currentGameScore.scoreRevision();
 
         boolean revisionIsStale = receivedRevision <= currentRevision;
         if (revisionIsStale) {
-            return new StaleScoreRevisionException(receivedRevision, currentScore);
+            return new StaleScoreRevisionException(receivedRevision, currentGameScore);
         }
 
-        return new ScoreRevisionGapException(receivedRevision, currentScore);
+        return new ScoreRevisionGapException(receivedRevision, currentGameScore);
     }
 
     private static GameScore createGameScore(Game game) {
@@ -68,9 +69,9 @@ public class ScoreUpdateUseCase implements ScoreUpdatePort {
         return new GameScore(gameId, score, scoreRevision);
     }
 
-    private static void ensureScoreIsNotNull(GameScore score) {
-        if (score == null) {
-            throw new NullPointerException("Score must not be null");
+    private static void ensureGameScoreIsNotNull(GameScore gameScore) {
+        if (gameScore == null) {
+            throw new NullPointerException("Game score must not be null");
         }
     }
 }
