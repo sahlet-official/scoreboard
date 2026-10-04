@@ -45,6 +45,7 @@ public class Game {
 
     public void updateScore(Score score, int scoreRevision) {
         ensureScoreIsNotNull(score);
+        ensureScoreRevisionIsNotNegative(scoreRevision);
         this.score = score;
         this.scoreRevision = scoreRevision;
     }

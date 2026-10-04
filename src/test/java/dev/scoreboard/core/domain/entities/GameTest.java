@@ -101,4 +101,15 @@ class GameTest {
 
         assertThat(failure).isInstanceOf(NullPointerException.class);
     }
+
+    @ParameterizedTest
+    @ValueSource(ints = {-1, -2, Integer.MIN_VALUE})
+    void shouldRejectNegativeScoreRevisionWhenScoreIsUpdated(int negativeRevision) {
+        Game game = new Game(ID, SEQUENCE_NUMBER, TEAMS, SCORE, SCORE_REVISION);
+        Score newScore = new Score(1, 0);
+
+        Throwable failure = catchThrowable(() -> game.updateScore(newScore, negativeRevision));
+
+        assertThat(failure).isInstanceOf(IllegalArgumentException.class);
+    }
 }
