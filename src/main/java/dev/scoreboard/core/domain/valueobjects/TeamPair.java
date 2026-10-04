@@ -3,8 +3,7 @@ package dev.scoreboard.core.domain.valueobjects;
 public record TeamPair(String homeTeam, String awayTeam) {
     public TeamPair {
         ensureNameIsValid(homeTeam);
-        ensureNameIsNotNull(awayTeam);
-        ensureNameIsNotEmpty(awayTeam);
+        ensureNameIsValid(awayTeam);
     }
 
     private static void ensureNameIsValid(String name) {

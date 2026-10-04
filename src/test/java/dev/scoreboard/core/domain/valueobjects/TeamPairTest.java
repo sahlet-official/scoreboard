@@ -51,4 +51,12 @@ class TeamPairTest {
 
         assertThat(failure).isInstanceOf(IllegalArgumentException.class);
     }
+
+    @ParameterizedTest
+    @ValueSource(strings = {" Canada", "Canada ", " Canada ", " Cana da ", "\tCanada", "Canada\n", " Cana\nda ", " "})
+    void shouldRejectAwayTeamNameWithWhitespaceAtTheEdges(String nameWithEdgeWhitespace) {
+        Throwable failure = catchThrowable(() -> new TeamPair("Mexico", nameWithEdgeWhitespace));
+
+        assertThat(failure).isInstanceOf(IllegalArgumentException.class);
+    }
 }
