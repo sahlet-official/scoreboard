@@ -34,4 +34,13 @@ class GameStartUseCaseTest {
 
         assertThat(scoreRevision).isEqualTo(zeroRevision);
     }
+
+    @Test
+    void shouldAddGameWithGivenTeamsToRepository() {
+        gameStartUseCase.execute(TEAMS);
+        NewGame addedGame = gameRepositoryStub.getAddedGame();
+        TeamPair teams = addedGame.teams();
+
+        assertThat(teams).isEqualTo(TEAMS);
+    }
 }
