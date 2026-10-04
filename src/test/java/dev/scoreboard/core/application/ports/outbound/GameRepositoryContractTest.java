@@ -18,14 +18,15 @@ public abstract class GameRepositoryContractTest {
     private static final TeamPair MEXICO_CANADA = TeamPair.of("Mexico", "Canada");
     private static final TeamPair CANADA_MEXICO = TeamPair.of("Canada", "Mexico");
     private static final TeamPair MEXICO_BRAZIL = TeamPair.of("Mexico", "Brazil");
+    private static final TeamPair SPAIN_CANADA = TeamPair.of("Spain", "Canada");
     private static final TeamPair SPAIN_BRAZIL = TeamPair.of("Spain", "Brazil");
-
     private static final Score SCORE = new Score(2, 1);
     private static final int SCORE_REVISION = 3;
 
     private static final NewGame NEW_GAME = new NewGame(MEXICO_CANADA, SCORE, SCORE_REVISION);
     private static final NewGame ANOTHER_NEW_GAME = new NewGame(SPAIN_BRAZIL, SCORE, SCORE_REVISION);
     private static final NewGame NEW_GAME_WITH_SAME_HOME_TEAM = new NewGame(MEXICO_BRAZIL, SCORE, SCORE_REVISION);
+    private static final NewGame NEW_GAME_WITH_SAME_AWAY_TEAM = new NewGame(SPAIN_CANADA, SCORE, SCORE_REVISION);
 
     private GameRepository gameRepository;
 
@@ -61,6 +62,17 @@ public abstract class GameRepositoryContractTest {
 
         Throwable failure = catchThrowable(
             () -> gameRepository.addGameWithUniqueTeams(NEW_GAME_WITH_SAME_HOME_TEAM)
+        );
+
+        assertThat(failure).isInstanceOf(TeamsNotUniqueException.class);
+    }
+
+    @Test
+    void shouldRejectGameWhenItsAwayTeamIsPlayingInAnotherGame() throws TeamsNotUniqueException {
+        gameRepository.addGameWithUniqueTeams(NEW_GAME);
+
+        Throwable failure = catchThrowable(
+            () -> gameRepository.addGameWithUniqueTeams(NEW_GAME_WITH_SAME_AWAY_TEAM)
         );
 
         assertThat(failure).isInstanceOf(TeamsNotUniqueException.class);

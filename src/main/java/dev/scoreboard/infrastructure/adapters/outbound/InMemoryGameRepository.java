@@ -28,6 +28,7 @@ public class InMemoryGameRepository implements GameRepository {
         TeamName homeTeam = teams.homeTeam();
         TeamName awayTeam = teams.awayTeam();
         ensureTeamIsNotPlaying(homeTeam);
+        ensureTeamIsNotPlaying(awayTeam);
 
         GameId id = new GameId(nextId);
         long sequenceNumber = nextId;
