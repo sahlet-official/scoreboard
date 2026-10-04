@@ -8,6 +8,7 @@ import dev.scoreboard.core.application.ports.inbound.models.GameDetails;
 import dev.scoreboard.core.application.ports.outbound.GameRepository;
 import dev.scoreboard.core.application.ports.outbound.exceptions.TeamsNotUniqueException;
 import dev.scoreboard.core.application.ports.outbound.models.NewGame;
+import dev.scoreboard.core.application.usecases.mappers.GameDetailsMapper;
 import dev.scoreboard.core.domain.entities.Game;
 import dev.scoreboard.core.domain.valueobjects.GameId;
 import dev.scoreboard.core.domain.valueobjects.Score;
@@ -30,7 +31,7 @@ public class GameStartUseCase implements GameStartPort {
 
         try {
             Game storedGame = gameRepository.addGameWithUniqueTeams(newGame);
-            return detailsOf(storedGame);
+            return GameDetailsMapper.createGameDetails(storedGame);
         } catch (TeamsNotUniqueException exception) {
             Game conflictingGame = exception.getConflictingGame();
             throw createGameConflictException(teams, conflictingGame);
@@ -48,13 +49,5 @@ public class GameStartUseCase implements GameStartPort {
 
         TeamName busyTeamName = teams.homeTeam();
         return new TeamAlreadyPlayingException(busyTeamName, conflictingGameId);
-    }
-
-    private static GameDetails detailsOf(Game game) {
-        GameId id = game.getId();
-        TeamPair teams = game.getTeams();
-        Score score = game.getScore();
-        int scoreRevision = game.getScoreRevision();
-        return new GameDetails(id, teams, score, scoreRevision);
     }
 }
