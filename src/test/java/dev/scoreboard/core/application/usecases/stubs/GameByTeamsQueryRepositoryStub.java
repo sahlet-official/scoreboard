@@ -12,7 +12,7 @@ import java.util.Optional;
 public class GameByTeamsQueryRepositoryStub implements GameRepository {
     @Override
     public Optional<Game> findGame(TeamPair teams) {
-        throw new UnsupportedOperationException();
+        return Optional.empty();
     }
 
     @Override
