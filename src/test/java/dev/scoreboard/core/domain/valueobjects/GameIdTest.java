@@ -20,8 +20,9 @@ class GameIdTest {
     @ValueSource(longs = {0, 1, 42, Long.MAX_VALUE})
     void shouldKeepGivenValue(long value) {
         GameId gameId = new GameId(value);
+        long keptValue = gameId.value();
 
-        assertThat(gameId.value()).isEqualTo(value);
+        assertThat(keptValue).isEqualTo(value);
     }
 
     @Test

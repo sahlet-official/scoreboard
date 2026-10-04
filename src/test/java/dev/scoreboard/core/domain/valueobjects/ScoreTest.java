@@ -28,16 +28,18 @@ class ScoreTest {
     @ValueSource(ints = {0, 1, 3, Integer.MAX_VALUE})
     void shouldKeepGivenHomeScore(int homeScore) {
         Score score = new Score(homeScore, 0);
+        int keptHomeScore = score.home();
 
-        assertThat(score.home()).isEqualTo(homeScore);
+        assertThat(keptHomeScore).isEqualTo(homeScore);
     }
 
     @ParameterizedTest
     @ValueSource(ints = {0, 1, 3, Integer.MAX_VALUE})
     void shouldKeepGivenAwayScore(int awayScore) {
         Score score = new Score(0, awayScore);
+        int keptAwayScore = score.away();
 
-        assertThat(score.away()).isEqualTo(awayScore);
+        assertThat(keptAwayScore).isEqualTo(awayScore);
     }
 
     @Test

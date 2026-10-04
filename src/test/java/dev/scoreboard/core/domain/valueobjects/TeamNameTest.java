@@ -39,8 +39,9 @@ class TeamNameTest {
         String name = "Mexico";
 
         TeamName teamName = new TeamName(name);
+        String keptName = teamName.value();
 
-        assertThat(teamName.value()).isEqualTo(name);
+        assertThat(keptName).isEqualTo(name);
     }
 
     @ParameterizedTest
@@ -48,8 +49,9 @@ class TeamNameTest {
             "Costa Rica", "Bosnia and Herzegovina", "Korea  Republic", "Costa\tRica", "Costa\nRica"})
     void shouldAcceptNameWithWhitespaceInside(String nameWithInnerWhitespace) {
         TeamName teamName = new TeamName(nameWithInnerWhitespace);
+        String keptName = teamName.value();
 
-        assertThat(teamName.value()).isEqualTo(nameWithInnerWhitespace);
+        assertThat(keptName).isEqualTo(nameWithInnerWhitespace);
     }
 
     @Test

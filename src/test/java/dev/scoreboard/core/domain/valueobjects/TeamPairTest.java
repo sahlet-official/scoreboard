@@ -32,8 +32,9 @@ class TeamPairTest {
         TeamName canada = new TeamName("Canada");
 
         TeamPair teams = new TeamPair(mexico, canada);
+        TeamName homeTeam = teams.homeTeam();
 
-        assertThat(teams.homeTeam()).isEqualTo(mexico);
+        assertThat(homeTeam).isEqualTo(mexico);
     }
 
     @Test
@@ -42,8 +43,9 @@ class TeamPairTest {
         TeamName canada = new TeamName("Canada");
 
         TeamPair teams = new TeamPair(mexico, canada);
+        TeamName awayTeam = teams.awayTeam();
 
-        assertThat(teams.awayTeam()).isEqualTo(canada);
+        assertThat(awayTeam).isEqualTo(canada);
     }
 
     @Test
