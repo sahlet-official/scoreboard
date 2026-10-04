@@ -42,4 +42,14 @@ class TeamNameTest {
 
         assertThat(teamName.value()).isEqualTo(nameWithInnerWhitespace);
     }
+
+    @Test
+    void shouldTreatNamesInDifferentCaseAsDifferentTeams() {
+        TeamName capitalized = new TeamName("Mexico");
+        TeamName lowercase = new TeamName("mexico");
+
+        boolean sameTeam = capitalized.equals(lowercase);
+
+        assertThat(sameTeam).isFalse();
+    }
 }
