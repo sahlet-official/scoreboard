@@ -3,12 +3,14 @@ package dev.scoreboard.core.domain.valueobjects;
 public record TeamPair(String homeTeam, String awayTeam) {
     public TeamPair {
         ensureNameIsValid(homeTeam);
-        ensureNameIsValid(awayTeam);
+        ensureNameIsNotNull(awayTeam);
+        ensureNameIsNotEmpty(awayTeam);
     }
 
     private static void ensureNameIsValid(String name) {
         ensureNameIsNotNull(name);
         ensureNameIsNotEmpty(name);
+        ensureNameHasNoWhitespaceAtTheEdges(name);
     }
 
     private static void ensureNameIsNotNull(String name) {
@@ -20,6 +22,13 @@ public record TeamPair(String homeTeam, String awayTeam) {
     private static void ensureNameIsNotEmpty(String name) {
         if (name.isEmpty()) {
             throw new IllegalArgumentException("Team name must not be empty");
+        }
+    }
+
+    private static void ensureNameHasNoWhitespaceAtTheEdges(String name) {
+        String stripped = name.strip();
+        if (!name.equals(stripped)) {
+            throw new IllegalArgumentException("Team name must not start or end with whitespace");
         }
     }
 }

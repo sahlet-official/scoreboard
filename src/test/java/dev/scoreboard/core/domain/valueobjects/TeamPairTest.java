@@ -4,6 +4,8 @@ import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.catchThrowable;
 
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.params.ParameterizedTest;
+import org.junit.jupiter.params.provider.ValueSource;
 
 class TeamPairTest {
     @Test
@@ -38,6 +40,14 @@ class TeamPairTest {
         String emptyName = "";
 
         Throwable failure = catchThrowable(() -> new TeamPair("Mexico", emptyName));
+
+        assertThat(failure).isInstanceOf(IllegalArgumentException.class);
+    }
+
+    @ParameterizedTest
+    @ValueSource(strings = {" Mexico", "Mexico ", " Mexico ", " Mexi co ", "\tMexico", "Mexico\n", " Mexi\nco ", " "})
+    void shouldRejectHomeTeamNameWithWhitespaceAtTheEdges(String nameWithEdgeWhitespace) {
+        Throwable failure = catchThrowable(() -> new TeamPair(nameWithEdgeWhitespace, "Canada"));
 
         assertThat(failure).isInstanceOf(IllegalArgumentException.class);
     }
