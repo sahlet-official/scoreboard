@@ -13,7 +13,9 @@ final class GameRepositoryTestData {
     static final TeamPair SPAIN_BRAZIL = TeamPair.of("Spain", "Brazil");
 
     static final Score SCORE = new Score(2, 1);
+    static final Score ANOTHER_SCORE = new Score(3, 1);
     static final int SCORE_REVISION = 3;
+    static final int NEXT_SCORE_REVISION = SCORE_REVISION + 1;
 
     static final NewGame NEW_GAME = new NewGame(MEXICO_CANADA, SCORE, SCORE_REVISION);
     static final NewGame ANOTHER_NEW_GAME = new NewGame(SPAIN_BRAZIL, SCORE, SCORE_REVISION);

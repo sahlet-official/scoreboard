@@ -64,7 +64,9 @@ public class InMemoryGameRepository implements GameRepository {
             throw new GameMissingException(gameId);
         }
 
-        throw new UnsupportedOperationException("Not implemented yet");
+        Score newScore = score.score();
+        int newScoreRevision = score.scoreRevision();
+        game.updateScore(newScore, newScoreRevision);
     }
 
     @Override
