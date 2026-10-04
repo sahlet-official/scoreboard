@@ -9,41 +9,85 @@ import dev.scoreboard.core.domain.entities.Game;
 import dev.scoreboard.core.domain.valueobjects.GameId;
 import dev.scoreboard.core.domain.valueobjects.Score;
 import dev.scoreboard.core.domain.valueobjects.TeamPair;
+import java.util.ArrayList;
 import java.util.List;
 import org.junit.jupiter.api.Test;
 
 class SummaryQueryUseCaseTest {
-    private static final GameId GAME_ID = new GameId(1);
-    private static final long SEQUENCE_NUMBER = 1;
-    private static final TeamPair TEAMS = TeamPair.of("Mexico", "Canada");
-    private static final Score SCORE = new Score(0, 5);
-    private static final int SCORE_REVISION = 3;
-
-    private static final Game GAME = new Game(
-        GAME_ID, SEQUENCE_NUMBER, TEAMS, SCORE, SCORE_REVISION
-    );
-
-    private static final GameSummary GAME_SUMMARY = new GameSummary(TEAMS, SCORE);
+    private static final TeamPair MEXICO_CANADA = TeamPair.of("Mexico", "Canada");
+    private static final TeamPair SPAIN_BRAZIL = TeamPair.of("Spain", "Brazil");
+    private static final TeamPair GERMANY_FRANCE = TeamPair.of("Germany", "France");
 
     private final SummaryQueryRepositoryStub summaryQueryRepositoryStub = new SummaryQueryRepositoryStub();
     private final SummaryQueryUseCase summaryQueryUseCase = new SummaryQueryUseCase(summaryQueryRepositoryStub);
 
+    private long nextSequenceNumber = 1;
+
     @Test
     void shouldReturnEmptySummaryWhenNoGamesAreInProgress() {
-        Summary summary = summaryQueryUseCase.execute();
-        List<GameSummary> games = summary.games();
+        List<GameSummary> games = gamesInSummary();
 
         assertThat(games).isEmpty();
     }
 
     @Test
     void shouldReturnTeamsAndScoreOfGameInProgress() {
-        List<Game> gamesInProgress = List.of(GAME);
+        gamesInProgress(
+            game(MEXICO_CANADA, 0, 5)
+        );
+
+        List<GameSummary> games = gamesInSummary();
+
+        assertThat(games).containsExactly(gameSummary(MEXICO_CANADA, 0, 5));
+    }
+
+    @Test
+    void shouldOrderGamesByTotalScoreHighestFirst() {
+        gamesInProgress(
+            game(MEXICO_CANADA, 0, 1),
+            game(SPAIN_BRAZIL, 3, 2),
+            game(GERMANY_FRANCE, 2, 0)
+        );
+
+        List<TeamPair> teamsInOrder = teamsInSummary();
+
+        assertThat(teamsInOrder).containsExactly(SPAIN_BRAZIL, GERMANY_FRANCE, MEXICO_CANADA);
+    }
+
+    private void gamesInProgress(Game... games) {
+        List<Game> gamesInProgress = List.of(games);
         summaryQueryRepositoryStub.setGames(gamesInProgress);
+    }
 
+    private Game game(TeamPair teams, int homeScore, int awayScore) {
+        long sequenceNumber = nextSequenceNumber;
+        nextSequenceNumber++;
+
+        GameId id = new GameId(sequenceNumber);
+        Score score = new Score(homeScore, awayScore);
+        int scoreRevision = 0;
+        return new Game(id, sequenceNumber, teams, score, scoreRevision);
+    }
+
+    private static GameSummary gameSummary(TeamPair teams, int homeScore, int awayScore) {
+        Score score = new Score(homeScore, awayScore);
+        return new GameSummary(teams, score);
+    }
+
+    private List<GameSummary> gamesInSummary() {
         Summary summary = summaryQueryUseCase.execute();
-        List<GameSummary> games = summary.games();
+        return summary.games();
+    }
 
-        assertThat(games).containsExactly(GAME_SUMMARY);
+    private List<TeamPair> teamsInSummary() {
+        List<GameSummary> games = gamesInSummary();
+
+        List<TeamPair> teams = new ArrayList<>();
+        for (GameSummary game : games) {
+            TeamPair teamsOfGame = game.teams();
+            teams.add(teamsOfGame);
+        }
+
+        return teams;
     }
 }
