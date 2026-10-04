@@ -22,8 +22,13 @@ public class GameAlreadyInProgressException extends ScoreboardException {
     }
 
     private static String messageFor(TeamPair teams, GameId gameId) {
-        String game = teams.homeTeam() + " - " + teams.awayTeam();
+        String homeTeam = teams.homeTeam().value();
+        String awayTeam = teams.awayTeam().value();
+
+        String game = homeTeam + " - " + awayTeam;
+
         long id = gameId.value();
+
         return "Game already in progress: " + game + ", id " + id;
     }
 }

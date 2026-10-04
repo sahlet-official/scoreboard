@@ -1,27 +1,29 @@
 package dev.scoreboard.core.application.ports.inbound.exceptions;
 
 import dev.scoreboard.core.domain.valueobjects.GameId;
+import dev.scoreboard.core.domain.valueobjects.TeamName;
 
 public class TeamAlreadyPlayingException extends ScoreboardException {
-    private final String team;
+    private final TeamName teamName;
     private final GameId gameId;
 
-    public TeamAlreadyPlayingException(String team, GameId gameId) {
-        super(messageFor(team, gameId));
-        this.team = team;
+    public TeamAlreadyPlayingException(TeamName teamName, GameId gameId) {
+        super(messageFor(teamName, gameId));
+        this.teamName = teamName;
         this.gameId = gameId;
     }
 
-    public String getTeam() {
-        return team;
+    public TeamName getTeamName() {
+        return teamName;
     }
 
     public GameId getGameId() {
         return gameId;
     }
 
-    private static String messageFor(String team, GameId gameId) {
+    private static String messageFor(TeamName teamName, GameId gameId) {
+        String nameOfTeam = teamName.value();
         long id = gameId.value();
-        return "Team already playing: " + team + ", game id " + id;
+        return "Team already playing: " + nameOfTeam + ", game id " + id;
     }
 }

@@ -34,7 +34,11 @@ public class GameNotFoundException extends ScoreboardException {
     }
 
     private static String messageFor(TeamPair teams) {
-        String game = teams.homeTeam() + " - " + teams.awayTeam();
+        String homeTeam = teams.homeTeam().value();
+        String awayTeam = teams.awayTeam().value();
+
+        String game = homeTeam + " - " + awayTeam;
+
         return "Game not found: " + game;
     }
 }
