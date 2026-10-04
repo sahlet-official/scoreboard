@@ -33,4 +33,13 @@ class TeamNameTest {
 
         assertThat(failure).isInstanceOf(IllegalArgumentException.class);
     }
+
+    @ParameterizedTest
+    @ValueSource(strings = {
+            "Costa Rica", "Bosnia and Herzegovina", "Korea  Republic", "Costa\tRica", "Costa\nRica"})
+    void shouldAcceptNameWithWhitespaceInside(String nameWithInnerWhitespace) {
+        TeamName teamName = new TeamName(nameWithInnerWhitespace);
+
+        assertThat(teamName.value()).isEqualTo(nameWithInnerWhitespace);
+    }
 }
