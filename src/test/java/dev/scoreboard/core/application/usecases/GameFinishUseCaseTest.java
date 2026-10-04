@@ -2,10 +2,12 @@ package dev.scoreboard.core.application.usecases;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.catchThrowable;
+import static org.assertj.core.api.Assertions.catchThrowableOfType;
 
 import dev.scoreboard.core.application.ports.inbound.exceptions.GameNotFoundException;
 import dev.scoreboard.core.application.usecases.stubs.GameFinishRepositoryStub;
 import dev.scoreboard.core.domain.valueobjects.GameId;
+import java.util.Optional;
 import org.junit.jupiter.api.Test;
 
 class GameFinishUseCaseTest {
@@ -38,5 +40,18 @@ class GameFinishUseCaseTest {
         Throwable failure = catchThrowable(() -> gameFinishUseCase.execute(GAME_ID));
 
         assertThat(failure).isInstanceOf(GameNotFoundException.class);
+    }
+
+    @Test
+    void shouldReportIdOfGameThatIsNotFound() {
+        gameFinishRepositoryStub.setGameMissing(true);
+
+        GameNotFoundException exception = catchThrowableOfType(
+            GameNotFoundException.class,
+            () -> gameFinishUseCase.execute(GAME_ID)
+        );
+        Optional<GameId> reportedId = exception.getGameId();
+
+        assertThat(reportedId).contains(GAME_ID);
     }
 }
