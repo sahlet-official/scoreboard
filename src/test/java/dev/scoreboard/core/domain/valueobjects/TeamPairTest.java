@@ -45,4 +45,14 @@ class TeamPairTest {
 
         assertThat(samePair).isTrue();
     }
+
+    @Test
+    void shouldTreatPairsWithDifferentTeamsAsDifferentPairs() {
+        TeamPair first = new TeamPair(new TeamName("Mexico"), new TeamName("Canada"));
+        TeamPair second = new TeamPair(new TeamName("Spain"), new TeamName("Brazil"));
+
+        boolean samePair = first.equals(second);
+
+        assertThat(samePair).isFalse();
+    }
 }
