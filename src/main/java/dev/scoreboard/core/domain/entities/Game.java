@@ -15,6 +15,7 @@ public class Game {
         ensureIdIsNotNull(id);
         ensureTeamsAreNotNull(teams);
         ensureScoreIsNotNull(score);
+        ensureScoreRevisionIsNotNegative(scoreRevision);
         this.id = id;
         this.sequenceNumber = sequenceNumber;
         this.teams = teams;
@@ -62,6 +63,12 @@ public class Game {
     private static void ensureScoreIsNotNull(Score score) {
         if (score == null) {
             throw new NullPointerException("Score must not be null");
+        }
+    }
+
+    private static void ensureScoreRevisionIsNotNegative(int scoreRevision) {
+        if (scoreRevision < 0) {
+            throw new IllegalArgumentException("Score revision must not be negative");
         }
     }
 }

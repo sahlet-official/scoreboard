@@ -7,6 +7,8 @@ import dev.scoreboard.core.domain.valueobjects.GameId;
 import dev.scoreboard.core.domain.valueobjects.Score;
 import dev.scoreboard.core.domain.valueobjects.TeamPair;
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.params.ParameterizedTest;
+import org.junit.jupiter.params.provider.ValueSource;
 
 class GameTest {
     private static final GameId ID = new GameId(7);
@@ -46,5 +48,15 @@ class GameTest {
         );
 
         assertThat(failure).isInstanceOf(NullPointerException.class);
+    }
+
+    @ParameterizedTest
+    @ValueSource(ints = {-1, -2, Integer.MIN_VALUE})
+    void shouldRejectNegativeScoreRevision(int negativeRevision) {
+        Throwable failure = catchThrowable(
+            () -> new Game(ID, SEQUENCE_NUMBER, TEAMS, SCORE, negativeRevision)
+        );
+
+        assertThat(failure).isInstanceOf(IllegalArgumentException.class);
     }
 }
