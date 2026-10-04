@@ -19,6 +19,8 @@ import dev.scoreboard.core.domain.valueobjects.GameScore;
 import dev.scoreboard.core.domain.valueobjects.Score;
 import java.util.Optional;
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.params.ParameterizedTest;
+import org.junit.jupiter.params.provider.ValueSource;
 
 public interface ScoreUpdateContractTest {
     GameRepository gameRepository();
@@ -73,5 +75,20 @@ public interface ScoreUpdateContractTest {
         Optional<Integer> storedScoreRevision = foundGame.map(Game::getScoreRevision);
 
         assertThat(storedScoreRevision).contains(NEXT_SCORE_REVISION);
+    }
+
+    @ParameterizedTest
+    @ValueSource(ints = {
+        0, SCORE_REVISION - 1, SCORE_REVISION, NEXT_SCORE_REVISION + 1, Integer.MAX_VALUE
+    })
+    default void shouldRejectScoreSentWithRevisionThatIsNotNext(int revisionThatIsNotNext)
+            throws TeamsNotUniqueException {
+        Game addedGame = gameRepository().addGameWithUniqueTeams(NEW_GAME);
+        GameId id = addedGame.getId();
+        GameScore score = new GameScore(id, ANOTHER_SCORE, revisionThatIsNotNext);
+
+        Throwable failure = catchThrowable(() -> gameRepository().updateScoreIfNextRevision(score));
+
+        assertThat(failure).isInstanceOf(ScoreRevisionConflictException.class);
     }
 }
