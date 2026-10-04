@@ -34,6 +34,15 @@ class TeamNameTest {
         assertThat(failure).isInstanceOf(IllegalArgumentException.class);
     }
 
+    @Test
+    void shouldKeepGivenName() {
+        String name = "Mexico";
+
+        TeamName teamName = new TeamName(name);
+
+        assertThat(teamName.value()).isEqualTo(name);
+    }
+
     @ParameterizedTest
     @ValueSource(strings = {
             "Costa Rica", "Bosnia and Herzegovina", "Korea  Republic", "Costa\tRica", "Costa\nRica"})
