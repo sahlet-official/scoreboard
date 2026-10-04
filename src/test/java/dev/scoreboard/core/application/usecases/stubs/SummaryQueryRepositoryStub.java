@@ -10,9 +10,15 @@ import java.util.List;
 import java.util.Optional;
 
 public class SummaryQueryRepositoryStub implements GameRepository {
+    private List<Game> games = List.of();
+
+    public void setGames(List<Game> games) {
+        this.games = games;
+    }
+
     @Override
     public List<Game> findAllGames() {
-        throw new UnsupportedOperationException();
+        return games;
     }
 
     @Override
