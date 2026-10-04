@@ -2,6 +2,7 @@ package dev.scoreboard.core.application.usecases;
 
 import dev.scoreboard.core.application.ports.inbound.GameFinishPort;
 import dev.scoreboard.core.application.ports.outbound.GameRepository;
+import dev.scoreboard.core.application.ports.outbound.exceptions.GameMissingException;
 import dev.scoreboard.core.domain.valueobjects.GameId;
 
 public class GameFinishUseCase implements GameFinishPort {
@@ -14,6 +15,13 @@ public class GameFinishUseCase implements GameFinishPort {
     @Override
     public void execute(GameId gameId) {
         ensureGameIdIsNotNull(gameId);
+
+        try {
+            gameRepository.removeGame(gameId);
+
+        } catch (GameMissingException exception) {
+            throw new UnsupportedOperationException("Not implemented yet", exception);
+        }
     }
 
     private static void ensureGameIdIsNotNull(GameId gameId) {

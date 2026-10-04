@@ -10,9 +10,15 @@ import java.util.List;
 import java.util.Optional;
 
 public class GameFinishRepositoryStub implements GameRepository {
+    private GameId removedGameId;
+
+    public GameId getRemovedGameId() {
+        return removedGameId;
+    }
+
     @Override
     public void removeGame(GameId id) {
-        throw new UnsupportedOperationException();
+        removedGameId = id;
     }
 
     @Override
