@@ -78,4 +78,16 @@ class GameTest {
 
         assertThat(keepsGivenValues).isTrue();
     }
+
+    @Test
+    void shouldChangeScoreWhenScoreIsUpdated() {
+        Game game = new Game(ID, SEQUENCE_NUMBER, TEAMS, SCORE, SCORE_REVISION);
+        Score newScore = new Score(1, 0);
+        int newRevision = 1;
+
+        game.updateScore(newScore, newRevision);
+        Score currentScore = game.getScore();
+
+        assertThat(currentScore).isEqualTo(newScore);
+    }
 }
