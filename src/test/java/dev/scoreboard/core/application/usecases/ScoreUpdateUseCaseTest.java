@@ -155,4 +155,19 @@ class ScoreUpdateUseCaseTest {
 
         assertThat(failure).isInstanceOf(ScoreRevisionGapException.class);
     }
+
+    @Test
+    void shouldReportReceivedRevisionAndCurrentScoreWhenRevisionIsAfterNext() {
+        scoreUpdateRepositoryStub.setGameInProgress(GAME_IN_PROGRESS);
+
+        ScoreRevisionGapException exception = catchThrowableOfType(
+            ScoreRevisionGapException.class,
+            () -> scoreUpdateUseCase.execute(SCORE_WITH_REVISION_AFTER_NEXT)
+        );
+        boolean reportsReceivedRevision = exception.getReceivedRevision() == REVISION_AFTER_NEXT;
+        boolean reportsCurrentScore = exception.getCurrentScore().equals(CURRENT_GAME_SCORE);
+        boolean reportsRevisionAndScore = reportsReceivedRevision && reportsCurrentScore;
+
+        assertThat(reportsRevisionAndScore).isTrue();
+    }
 }
