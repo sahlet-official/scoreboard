@@ -7,7 +7,6 @@ import static org.assertj.core.api.Assertions.assertThat;
 
 import dev.scoreboard.core.application.ports.outbound.exceptions.TeamsNotUniqueException;
 import dev.scoreboard.core.domain.entities.Game;
-import dev.scoreboard.core.domain.valueobjects.GameId;
 import dev.scoreboard.core.domain.valueobjects.Score;
 import java.util.Optional;
 import org.junit.jupiter.api.Test;
@@ -18,39 +17,42 @@ public interface StoredGameIsolationContractTest {
     @Test
     default void shouldKeepStoredScoreWhenAddedGameIsChanged() throws TeamsNotUniqueException {
         Game addedGame = gameRepository().addGameWithUniqueTeams(NEW_GAME);
-        GameId id = addedGame.getId();
 
-        addedGame.updateScore(ANOTHER_SCORE, NEXT_SCORE_REVISION);
-        Optional<Game> foundGame = gameRepository().findGame(id);
-        Optional<Score> storedScore = foundGame.map(Game::getScore);
+        changeScore(addedGame);
+        Score storedScore = findStoredScore();
 
-        assertThat(storedScore).contains(NEW_GAME.score());
+        assertThat(storedScore).isEqualTo(NEW_GAME.score());
     }
 
     @Test
     default void shouldKeepStoredScoreWhenGameFoundByIdIsChanged() throws TeamsNotUniqueException {
         Game addedGame = gameRepository().addGameWithUniqueTeams(NEW_GAME);
-        GameId id = addedGame.getId();
-        Optional<Game> foundGame = gameRepository().findGame(id);
-        Game gameFoundById = foundGame.orElseThrow();
+        Game gameFoundById = gameRepository().findGame(addedGame.getId()).orElseThrow();
 
-        gameFoundById.updateScore(ANOTHER_SCORE, NEXT_SCORE_REVISION);
-        Optional<Game> gameFoundAgain = gameRepository().findGame(id);
-        Optional<Score> storedScore = gameFoundAgain.map(Game::getScore);
+        changeScore(gameFoundById);
+        Score storedScore = findStoredScore();
 
-        assertThat(storedScore).contains(NEW_GAME.score());
+        assertThat(storedScore).isEqualTo(NEW_GAME.score());
     }
 
     @Test
     default void shouldKeepStoredScoreWhenGameFoundByTeamsIsChanged() throws TeamsNotUniqueException {
         gameRepository().addGameWithUniqueTeams(NEW_GAME);
+        Game gameFoundByTeams = gameRepository().findGame(NEW_GAME.teams()).orElseThrow();
+
+        changeScore(gameFoundByTeams);
+        Score storedScore = findStoredScore();
+
+        assertThat(storedScore).isEqualTo(NEW_GAME.score());
+    }
+
+    private static void changeScore(Game game) {
+        game.updateScore(ANOTHER_SCORE, NEXT_SCORE_REVISION);
+    }
+
+    private Score findStoredScore() {
         Optional<Game> foundGame = gameRepository().findGame(NEW_GAME.teams());
-        Game gameFoundByTeams = foundGame.orElseThrow();
-
-        gameFoundByTeams.updateScore(ANOTHER_SCORE, NEXT_SCORE_REVISION);
-        Optional<Game> gameFoundAgain = gameRepository().findGame(NEW_GAME.teams());
-        Optional<Score> storedScore = gameFoundAgain.map(Game::getScore);
-
-        assertThat(storedScore).contains(NEW_GAME.score());
+        Game storedGame = foundGame.orElseThrow();
+        return storedGame.getScore();
     }
 }
