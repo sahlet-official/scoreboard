@@ -5,17 +5,20 @@ import static org.assertj.core.api.Assertions.catchThrowable;
 import static org.assertj.core.api.Assertions.catchThrowableOfType;
 
 import dev.scoreboard.core.application.ports.inbound.exceptions.GameAlreadyInProgressException;
+import dev.scoreboard.core.application.ports.inbound.exceptions.TeamAlreadyPlayingException;
 import dev.scoreboard.core.application.ports.inbound.models.GameDetails;
 import dev.scoreboard.core.application.ports.outbound.models.NewGame;
 import dev.scoreboard.core.application.usecases.stubs.GameStartRepositoryStub;
 import dev.scoreboard.core.domain.entities.Game;
 import dev.scoreboard.core.domain.valueobjects.GameId;
 import dev.scoreboard.core.domain.valueobjects.Score;
+import dev.scoreboard.core.domain.valueobjects.TeamName;
 import dev.scoreboard.core.domain.valueobjects.TeamPair;
 import org.junit.jupiter.api.Test;
 
 class GameStartUseCaseTest {
     private static final TeamPair TEAMS = TeamPair.of("Mexico", "Canada");
+    private static final TeamName ANOTHER_TEAM_NAME = new TeamName("Brazil");
 
     private final GameStartRepositoryStub gameStartRepositoryStub = new GameStartRepositoryStub();
     private final GameStartUseCase gameStartUseCase = new GameStartUseCase(gameStartRepositoryStub);
@@ -112,6 +115,18 @@ class GameStartUseCaseTest {
         boolean reportsTeamsAndGameId = reportsTeams && reportsGameId;
 
         assertThat(reportsTeamsAndGameId).isTrue();
+    }
+
+    @Test
+    void shouldRejectStartWhenHomeTeamIsPlayingInAnotherGame() {
+        TeamName homeTeamName = TEAMS.homeTeam();
+        TeamPair teamsOfAnotherGame = new TeamPair(homeTeamName, ANOTHER_TEAM_NAME);
+        Game anotherGame = gameInProgress(teamsOfAnotherGame);
+        gameStartRepositoryStub.setGameInProgress(anotherGame);
+
+        Throwable failure = catchThrowable(() -> gameStartUseCase.execute(TEAMS));
+
+        assertThat(failure).isInstanceOf(TeamAlreadyPlayingException.class);
     }
 
     private static Game gameInProgress(TeamPair teams) {
