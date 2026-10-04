@@ -28,6 +28,7 @@ class ScoreUpdateUseCaseTest {
 
     private static final int NEXT_REVISION = CURRENT_REVISION + 1;
     private static final GameScore NEW_SCORE = new GameScore(GAME_ID, new Score(1, 0), NEXT_REVISION);
+    private static final GameScore REPEATED_SCORE = new GameScore(GAME_ID, CURRENT_SCORE, CURRENT_REVISION);
 
     private final ScoreUpdateRepositoryStub scoreUpdateRepositoryStub = new ScoreUpdateRepositoryStub();
     private final ScoreUpdateUseCase scoreUpdateUseCase = new ScoreUpdateUseCase(scoreUpdateRepositoryStub);
@@ -76,5 +77,14 @@ class ScoreUpdateUseCaseTest {
         GameScore updatedScore = scoreUpdateRepositoryStub.getUpdatedScore();
 
         assertThat(updatedScore).isEqualTo(NEW_SCORE);
+    }
+
+    @Test
+    void shouldReturnUnchangedWhenCurrentScoreIsSentAgainWithCurrentRevision() {
+        scoreUpdateRepositoryStub.setGameInProgress(GAME_IN_PROGRESS);
+
+        UpdateScoreResult result = scoreUpdateUseCase.execute(REPEATED_SCORE);
+
+        assertThat(result).isEqualTo(UpdateScoreResult.UNCHANGED);
     }
 }

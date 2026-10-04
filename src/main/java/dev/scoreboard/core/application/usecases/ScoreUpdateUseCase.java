@@ -29,7 +29,7 @@ public class ScoreUpdateUseCase implements ScoreUpdatePort {
             throw new GameNotFoundException(gameId);
 
         } catch (ScoreRevisionConflictException exception) {
-            throw new UnsupportedOperationException("Not implemented yet", exception);
+            return UpdateScoreResult.UNCHANGED;
         }
     }
 
