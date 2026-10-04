@@ -27,6 +27,7 @@ public class GameStartUseCase implements GameStartPort {
 
     @Override
     public GameDetails execute(TeamPair teams) {
+        ensureTeamsAreNotNull(teams);
         NewGame newGame = new NewGame(teams, INITIAL_SCORE, INITIAL_SCORE_REVISION);
 
         try {
@@ -35,6 +36,12 @@ public class GameStartUseCase implements GameStartPort {
         } catch (TeamsNotUniqueException exception) {
             Game conflictingGame = exception.getConflictingGame();
             throw createGameConflictException(teams, conflictingGame);
+        }
+    }
+
+    private static void ensureTeamsAreNotNull(TeamPair teams) {
+        if (teams == null) {
+            throw new NullPointerException("Teams must not be null");
         }
     }
 

@@ -24,6 +24,15 @@ class GameStartUseCaseTest {
     private final GameStartUseCase gameStartUseCase = new GameStartUseCase(gameStartRepositoryStub);
 
     @Test
+    void shouldRejectMissingTeams() {
+        TeamPair missingTeams = null;
+
+        Throwable failure = catchThrowable(() -> gameStartUseCase.execute(missingTeams));
+
+        assertThat(failure).isInstanceOf(NullPointerException.class);
+    }
+
+    @Test
     void shouldAddGameWithZeroScoreToRepository() {
         Score zeroScore = new Score(0, 0);
 
