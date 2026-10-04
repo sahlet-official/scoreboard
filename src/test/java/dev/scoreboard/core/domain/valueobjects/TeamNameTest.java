@@ -44,6 +44,16 @@ class TeamNameTest {
     }
 
     @Test
+    void shouldTreatSameNamesAsSameTeam() {
+        TeamName first = new TeamName("Mexico");
+        TeamName second = new TeamName("Mexico");
+
+        boolean sameTeam = first.equals(second);
+
+        assertThat(sameTeam).isTrue();
+    }
+
+    @Test
     void shouldTreatNamesInDifferentCaseAsDifferentTeams() {
         TeamName capitalized = new TeamName("Mexico");
         TeamName lowercase = new TeamName("mexico");
