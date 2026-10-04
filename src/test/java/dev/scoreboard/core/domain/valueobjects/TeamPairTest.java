@@ -35,4 +35,14 @@ class TeamPairTest {
 
         assertThat(failure).isInstanceOf(IllegalArgumentException.class);
     }
+
+    @Test
+    void shouldTreatPairsWithSameTeamsAsSamePair() {
+        TeamPair first = new TeamPair(new TeamName("Mexico"), new TeamName("Canada"));
+        TeamPair second = new TeamPair(new TeamName("Mexico"), new TeamName("Canada"));
+
+        boolean samePair = first.equals(second);
+
+        assertThat(samePair).isTrue();
+    }
 }
