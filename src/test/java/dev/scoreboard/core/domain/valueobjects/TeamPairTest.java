@@ -7,6 +7,24 @@ import org.junit.jupiter.api.Test;
 
 class TeamPairTest {
     @Test
+    void shouldRejectMissingHomeTeamName() {
+        String missingName = null;
+
+        Throwable failure = catchThrowable(() -> new TeamPair(missingName, "Canada"));
+
+        assertThat(failure).isInstanceOf(NullPointerException.class);
+    }
+
+    @Test
+    void shouldRejectMissingAwayTeamName() {
+        String missingName = null;
+
+        Throwable failure = catchThrowable(() -> new TeamPair("Mexico", missingName));
+
+        assertThat(failure).isInstanceOf(NullPointerException.class);
+    }
+
+    @Test
     void shouldRejectEmptyHomeTeamName() {
         String emptyName = "";
 
