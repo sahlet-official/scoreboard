@@ -34,4 +34,14 @@ class GameIdTest {
 
         assertThat(sameId).isTrue();
     }
+
+    @Test
+    void shouldTreatDifferentValuesAsDifferentIds() {
+        GameId first = new GameId(7);
+        GameId second = new GameId(8);
+
+        boolean sameId = first.equals(second);
+
+        assertThat(sameId).isFalse();
+    }
 }
