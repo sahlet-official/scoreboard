@@ -40,6 +40,17 @@ public class ScoreUpdateUseCase implements ScoreUpdatePort {
     }
 
     private static UpdateScoreResult resolveRevisionConflict(GameScore score, GameScore currentScore) {
+        ensureSameGame(score, currentScore);
+
+        boolean currentScoreSentAgain = score.equals(currentScore);
+        if (currentScoreSentAgain) {
+            return UpdateScoreResult.UNCHANGED;
+        }
+
+        throw createRevisionConflictException(score, currentScore);
+    }
+
+    private static void ensureSameGame(GameScore score, GameScore currentScore) {
         GameId gameId = score.gameId();
         GameId currentGameId = currentScore.gameId();
         boolean sameGame = gameId.equals(currentGameId);
@@ -47,26 +58,23 @@ public class ScoreUpdateUseCase implements ScoreUpdatePort {
         if (!sameGame) {
             throw new IllegalStateException("Score revision conflict reported for another game");
         }
+    }
 
-        boolean currentScoreSentAgain = score.equals(currentScore);
-        if (currentScoreSentAgain) {
-            return UpdateScoreResult.UNCHANGED;
-        }
-
+    private static RuntimeException createRevisionConflictException(GameScore score, GameScore currentScore) {
         int receivedRevision = score.scoreRevision();
         int currentRevision = currentScore.scoreRevision();
-        boolean revisionIsStale = receivedRevision <= currentRevision;
 
+        boolean revisionIsStale = receivedRevision <= currentRevision;
         if (revisionIsStale) {
-            throw new StaleScoreRevisionException(receivedRevision, currentScore);
+            return new StaleScoreRevisionException(receivedRevision, currentScore);
         }
 
         boolean revisionIsNext = receivedRevision - 1 == currentRevision;
         if (revisionIsNext) {
-            throw new IllegalStateException("Score revision conflict reported for the next revision");
+            return new IllegalStateException("Score revision conflict reported for the next revision");
         }
 
-        throw new ScoreRevisionGapException(receivedRevision, currentScore);
+        return new ScoreRevisionGapException(receivedRevision, currentScore);
     }
 
     private static GameScore createGameScore(Game game) {
