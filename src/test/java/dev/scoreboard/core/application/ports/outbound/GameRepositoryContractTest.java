@@ -58,6 +58,17 @@ public abstract class GameRepositoryContractTest {
     }
 
     @Test
+    void shouldAssignDifferentIdsToAddedGames() throws TeamsNotUniqueException {
+        Game firstGame = gameRepository.addGameWithUniqueTeams(NEW_GAME);
+        Game secondGame = gameRepository.addGameWithUniqueTeams(ANOTHER_NEW_GAME);
+
+        GameId idOfFirstGame = firstGame.getId();
+        GameId idOfSecondGame = secondGame.getId();
+
+        assertThat(idOfSecondGame).isNotEqualTo(idOfFirstGame);
+    }
+
+    @Test
     void shouldRejectGameWhenItsHomeTeamIsPlayingInAnotherGame() throws TeamsNotUniqueException {
         gameRepository.addGameWithUniqueTeams(NEW_GAME);
 
