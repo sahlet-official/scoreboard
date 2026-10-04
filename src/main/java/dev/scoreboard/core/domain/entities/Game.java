@@ -12,6 +12,7 @@ public class Game {
     private int scoreRevision;
 
     public Game(GameId id, long sequenceNumber, TeamPair teams, Score score, int scoreRevision) {
+        ensureIdIsNotNull(id);
         this.id = id;
         this.sequenceNumber = sequenceNumber;
         this.teams = teams;
@@ -42,5 +43,11 @@ public class Game {
     public void updateScore(Score score, int scoreRevision) {
         this.score = score;
         this.scoreRevision = scoreRevision;
+    }
+
+    private static void ensureIdIsNotNull(GameId id) {
+        if (id == null) {
+            throw new NullPointerException("Game ID must not be null");
+        }
     }
 }
