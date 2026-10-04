@@ -1,4 +1,4 @@
-package dev.scoreboard.core.application.usecases;
+package dev.scoreboard.core.application.usecases.stubs;
 
 import dev.scoreboard.core.application.ports.outbound.GameRepository;
 import dev.scoreboard.core.application.ports.outbound.exceptions.TeamsNotUniqueException;
@@ -12,17 +12,17 @@ import dev.scoreboard.core.domain.valueobjects.TeamPair;
 import java.util.List;
 import java.util.Optional;
 
-class GameStartRepositoryStub implements GameRepository {
-    static final GameId ASSIGNED_ID = new GameId(7);
+public class GameStartRepositoryStub implements GameRepository {
+    public static final GameId ASSIGNED_ID = new GameId(7);
 
     private Game gameInProgress;
     private NewGame addedGame;
 
-    void setGameInProgress(Game gameInProgress) {
+    public void setGameInProgress(Game gameInProgress) {
         this.gameInProgress = gameInProgress;
     }
 
-    NewGame getAddedGame() {
+    public NewGame getAddedGame() {
         return addedGame;
     }
 

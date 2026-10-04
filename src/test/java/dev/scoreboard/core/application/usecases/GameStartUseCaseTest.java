@@ -7,6 +7,7 @@ import static org.assertj.core.api.Assertions.catchThrowableOfType;
 import dev.scoreboard.core.application.ports.inbound.exceptions.GameAlreadyInProgressException;
 import dev.scoreboard.core.application.ports.inbound.models.GameDetails;
 import dev.scoreboard.core.application.ports.outbound.models.NewGame;
+import dev.scoreboard.core.application.usecases.stubs.GameStartRepositoryStub;
 import dev.scoreboard.core.domain.entities.Game;
 import dev.scoreboard.core.domain.valueobjects.GameId;
 import dev.scoreboard.core.domain.valueobjects.Score;
