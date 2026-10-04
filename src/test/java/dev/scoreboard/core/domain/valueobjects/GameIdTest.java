@@ -14,4 +14,12 @@ class GameIdTest {
 
         assertThat(failure).isInstanceOf(IllegalArgumentException.class);
     }
+
+    @ParameterizedTest
+    @ValueSource(longs = {0, 1, 42, Long.MAX_VALUE})
+    void shouldKeepGivenValue(long value) {
+        GameId gameId = new GameId(value);
+
+        assertThat(gameId.value()).isEqualTo(value);
+    }
 }
