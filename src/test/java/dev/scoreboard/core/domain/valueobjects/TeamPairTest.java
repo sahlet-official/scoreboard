@@ -27,6 +27,16 @@ class TeamPairTest {
     }
 
     @Test
+    void shouldKeepFirstTeamAsHomeTeam() {
+        TeamName mexico = new TeamName("Mexico");
+        TeamName canada = new TeamName("Canada");
+
+        TeamPair teams = new TeamPair(mexico, canada);
+
+        assertThat(teams.homeTeam()).isEqualTo(mexico);
+    }
+
+    @Test
     void shouldRejectSameTeamOnBothSides() {
         String name = "Mexico";
         TeamName mexico = new TeamName(name);
