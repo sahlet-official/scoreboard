@@ -8,6 +8,7 @@ import dev.scoreboard.core.application.ports.outbound.models.NewGame;
 import dev.scoreboard.core.domain.entities.Game;
 import dev.scoreboard.core.domain.valueobjects.GameId;
 import dev.scoreboard.core.domain.valueobjects.GameScore;
+import dev.scoreboard.core.domain.valueobjects.Score;
 import dev.scoreboard.core.domain.valueobjects.TeamPair;
 import java.util.List;
 import java.util.Optional;
@@ -15,7 +16,13 @@ import java.util.Optional;
 public class InMemoryGameRepository implements GameRepository {
     @Override
     public Game addGameWithUniqueTeams(NewGame game) throws TeamsNotUniqueException {
-        throw new UnsupportedOperationException("Not implemented yet");
+        GameId placeholderId = new GameId(0);
+        long placeholderSequenceNumber = 0;
+
+        TeamPair teams = game.teams();
+        Score score = game.score();
+        int scoreRevision = game.scoreRevision();
+        return new Game(placeholderId, placeholderSequenceNumber, teams, score, scoreRevision);
     }
 
     @Override
