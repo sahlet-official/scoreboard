@@ -3,6 +3,7 @@ package dev.scoreboard.core.application.usecases;
 import dev.scoreboard.core.application.ports.inbound.ScoreUpdatePort;
 import dev.scoreboard.core.application.ports.inbound.exceptions.GameNotFoundException;
 import dev.scoreboard.core.application.ports.inbound.exceptions.ScoreRevisionGapException;
+import dev.scoreboard.core.application.ports.inbound.exceptions.ScoreboardException;
 import dev.scoreboard.core.application.ports.inbound.exceptions.StaleScoreRevisionException;
 import dev.scoreboard.core.application.ports.inbound.models.UpdateScoreResult;
 import dev.scoreboard.core.application.ports.outbound.GameRepository;
@@ -40,8 +41,6 @@ public class ScoreUpdateUseCase implements ScoreUpdatePort {
     }
 
     private static UpdateScoreResult resolveRevisionConflict(GameScore score, GameScore currentScore) {
-        ensureSameGame(score, currentScore);
-
         boolean currentScoreSentAgain = score.equals(currentScore);
         if (currentScoreSentAgain) {
             return UpdateScoreResult.UNCHANGED;
@@ -50,28 +49,13 @@ public class ScoreUpdateUseCase implements ScoreUpdatePort {
         throw createRevisionConflictException(score, currentScore);
     }
 
-    private static void ensureSameGame(GameScore score, GameScore currentScore) {
-        GameId gameId = score.gameId();
-        GameId currentGameId = currentScore.gameId();
-        boolean sameGame = gameId.equals(currentGameId);
-
-        if (!sameGame) {
-            throw new IllegalStateException("Score revision conflict reported for another game");
-        }
-    }
-
-    private static RuntimeException createRevisionConflictException(GameScore score, GameScore currentScore) {
+    private static ScoreboardException createRevisionConflictException(GameScore score, GameScore currentScore) {
         int receivedRevision = score.scoreRevision();
         int currentRevision = currentScore.scoreRevision();
 
         boolean revisionIsStale = receivedRevision <= currentRevision;
         if (revisionIsStale) {
             return new StaleScoreRevisionException(receivedRevision, currentScore);
-        }
-
-        boolean revisionIsNext = receivedRevision - 1 == currentRevision;
-        if (revisionIsNext) {
-            return new IllegalStateException("Score revision conflict reported for the next revision");
         }
 
         return new ScoreRevisionGapException(receivedRevision, currentScore);

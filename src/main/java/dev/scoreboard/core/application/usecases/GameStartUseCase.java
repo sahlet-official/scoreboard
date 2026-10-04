@@ -65,13 +65,7 @@ public class GameStartUseCase implements GameStartPort {
             return homeTeam;
         }
 
-        TeamName awayTeam = teams.awayTeam();
-        boolean awayTeamIsCommon = contains(otherTeams, awayTeam);
-        if (awayTeamIsCommon) {
-            return awayTeam;
-        }
-
-        throw new IllegalStateException("Team pairs have no common team");
+        return teams.awayTeam();
     }
 
     private static boolean contains(TeamPair teams, TeamName teamName) {

@@ -20,7 +20,6 @@ class GameStartUseCaseTest {
     private static final TeamPair TEAMS = TeamPair.of("Mexico", "Canada");
     private static final TeamName HOME_TEAM_NAME = TEAMS.homeTeam();
     private static final TeamName AWAY_TEAM_NAME = TEAMS.awayTeam();
-    private static final TeamPair ANOTHER_TEAMS = TeamPair.of("Spain", "Germany");
     private static final TeamName ANOTHER_TEAM_NAME = new TeamName("Brazil");
 
     private static final GameId ID_OF_GAME_IN_PROGRESS = new GameId(3);
@@ -32,7 +31,6 @@ class GameStartUseCaseTest {
     private static final Game ANOTHER_GAME_WITH_AWAY_TEAM = gameInProgress(
         new TeamPair(ANOTHER_TEAM_NAME, AWAY_TEAM_NAME)
     );
-    private static final Game UNRELATED_GAME = gameInProgress(ANOTHER_TEAMS);
 
     private final GameStartRepositoryStub gameStartRepositoryStub = new GameStartRepositoryStub();
     private final GameStartUseCase gameStartUseCase = new GameStartUseCase(gameStartRepositoryStub);
@@ -183,15 +181,6 @@ class GameStartUseCaseTest {
         boolean reportsTeamNameAndGameId = reportsTeamName && reportsGameId;
 
         assertThat(reportsTeamNameAndGameId).isTrue();
-    }
-
-    @Test
-    void shouldFailWhenRepositoryReportsConflictWithUnrelatedGame() {
-        gameStartRepositoryStub.setGameWronglyReportedAsConflicting(UNRELATED_GAME);
-
-        Throwable failure = catchThrowable(() -> gameStartUseCase.execute(TEAMS));
-
-        assertThat(failure).isInstanceOf(IllegalStateException.class);
     }
 
     private static Game gameInProgress(TeamPair teams) {

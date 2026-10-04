@@ -28,11 +28,6 @@ class ScoreUpdateUseCaseTest {
         GAME_ID, SEQUENCE_NUMBER, TEAMS, CURRENT_SCORE, CURRENT_REVISION
     );
 
-    private static final GameId ANOTHER_GAME_ID = new GameId(8);
-    private static final Game ANOTHER_GAME = new Game(
-        ANOTHER_GAME_ID, SEQUENCE_NUMBER, TEAMS, CURRENT_SCORE, CURRENT_REVISION
-    );
-
     private static final int NEXT_REVISION = CURRENT_REVISION + 1;
     private static final int PREVIOUS_REVISION = CURRENT_REVISION - 1;
     private static final int REVISION_AFTER_NEXT = NEXT_REVISION + 1;
@@ -187,23 +182,5 @@ class ScoreUpdateUseCaseTest {
         boolean reportsRevisionAndScore = reportsReceivedRevision && reportsCurrentScore;
 
         assertThat(reportsRevisionAndScore).isTrue();
-    }
-
-    @Test
-    void shouldFailWhenRepositoryReportsRevisionConflictForNextRevision() {
-        scoreUpdateRepositoryStub.setScoreRevisionConflictGame(GAME_IN_PROGRESS);
-
-        Throwable failure = catchThrowable(() -> scoreUpdateUseCase.execute(NEW_SCORE));
-
-        assertThat(failure).isInstanceOf(IllegalStateException.class);
-    }
-
-    @Test
-    void shouldFailWhenRepositoryReportsRevisionConflictWithAnotherGame() {
-        scoreUpdateRepositoryStub.setScoreRevisionConflictGame(ANOTHER_GAME);
-
-        Throwable failure = catchThrowable(() -> scoreUpdateUseCase.execute(REPEATED_SCORE));
-
-        assertThat(failure).isInstanceOf(IllegalStateException.class);
     }
 }

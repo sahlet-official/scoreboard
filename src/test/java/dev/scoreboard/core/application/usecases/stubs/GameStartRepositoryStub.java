@@ -16,15 +16,10 @@ public class GameStartRepositoryStub implements GameRepository {
     public static final GameId ASSIGNED_ID = new GameId(7);
 
     private Game gameInProgress;
-    private Game gameWronglyReportedAsConflicting;
     private NewGame addedGame;
 
     public void setGameInProgress(Game gameInProgress) {
         this.gameInProgress = gameInProgress;
-    }
-
-    public void setGameWronglyReportedAsConflicting(Game gameWronglyReportedAsConflicting) {
-        this.gameWronglyReportedAsConflicting = gameWronglyReportedAsConflicting;
     }
 
     public NewGame getAddedGame() {
@@ -33,9 +28,6 @@ public class GameStartRepositoryStub implements GameRepository {
 
     @Override
     public Game addGameWithUniqueTeams(NewGame game) throws TeamsNotUniqueException {
-        if (gameWronglyReportedAsConflicting != null) {
-            throw new TeamsNotUniqueException(gameWronglyReportedAsConflicting);
-        }
         TeamPair teams = game.teams();
         TeamName homeTeam = teams.homeTeam();
         TeamName awayTeam = teams.awayTeam();
