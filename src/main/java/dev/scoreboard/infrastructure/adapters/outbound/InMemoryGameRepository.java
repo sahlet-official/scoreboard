@@ -24,22 +24,34 @@ public class InMemoryGameRepository implements GameRepository {
 
     @Override
     public Game addGameWithUniqueTeams(NewGame game) throws TeamsNotUniqueException {
+        TeamPair teams = game.teams();
+        TeamName homeTeam = teams.homeTeam();
+        TeamName awayTeam = teams.awayTeam();
+        ensureTeamIsNotPlaying(homeTeam);
+
         GameId id = new GameId(nextId);
         long sequenceNumber = nextId;
         nextId++;
 
-        TeamPair teams = game.teams();
         Score score = game.score();
         int scoreRevision = game.scoreRevision();
         Game addedGame = new Game(id, sequenceNumber, teams, score, scoreRevision);
 
-        TeamName homeTeam = teams.homeTeam();
-        TeamName awayTeam = teams.awayTeam();
         games.put(id, addedGame);
         gameIdsByTeamName.put(homeTeam, id);
         gameIdsByTeamName.put(awayTeam, id);
 
         return addedGame;
+    }
+
+    private void ensureTeamIsNotPlaying(TeamName teamName) throws TeamsNotUniqueException {
+        GameId idOfGameWithTeam = gameIdsByTeamName.get(teamName);
+        if (idOfGameWithTeam == null) {
+            return;
+        }
+
+        Game gameWithTeam = games.get(idOfGameWithTeam);
+        throw new TeamsNotUniqueException(gameWithTeam);
     }
 
     @Override
