@@ -14,4 +14,13 @@ class TeamPairTest {
 
         assertThat(failure).isInstanceOf(IllegalArgumentException.class);
     }
+
+    @Test
+    void shouldRejectEmptyAwayTeamName() {
+        String emptyName = "";
+
+        Throwable failure = catchThrowable(() -> new TeamPair("Mexico", emptyName));
+
+        assertThat(failure).isInstanceOf(IllegalArgumentException.class);
+    }
 }
