@@ -60,4 +60,18 @@ public interface ScoreUpdateContractTest {
 
         assertThat(storedScore).contains(ANOTHER_SCORE);
     }
+
+    @Test
+    default void shouldStoreNextRevisionSentWithScore()
+            throws TeamsNotUniqueException, GameMissingException, ScoreRevisionConflictException {
+        Game addedGame = gameRepository().addGameWithUniqueTeams(NEW_GAME);
+        GameId id = addedGame.getId();
+        GameScore scoreWithNextRevision = new GameScore(id, ANOTHER_SCORE, NEXT_SCORE_REVISION);
+
+        gameRepository().updateScoreIfNextRevision(scoreWithNextRevision);
+        Optional<Game> foundGame = gameRepository().findGame(id);
+        Optional<Integer> storedScoreRevision = foundGame.map(Game::getScoreRevision);
+
+        assertThat(storedScoreRevision).contains(NEXT_SCORE_REVISION);
+    }
 }
