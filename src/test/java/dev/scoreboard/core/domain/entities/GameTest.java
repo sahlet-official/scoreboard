@@ -83,7 +83,7 @@ class GameTest {
     void shouldChangeScoreWhenScoreIsUpdated() {
         Game game = new Game(ID, SEQUENCE_NUMBER, TEAMS, SCORE, SCORE_REVISION);
         Score newScore = new Score(1, 0);
-        int newRevision = 1;
+        int newRevision = SCORE_REVISION + 1;
 
         game.updateScore(newScore, newRevision);
         Score currentScore = game.getScore();
@@ -92,10 +92,22 @@ class GameTest {
     }
 
     @Test
+    void shouldChangeScoreRevisionWhenScoreIsUpdated() {
+        Game game = new Game(ID, SEQUENCE_NUMBER, TEAMS, SCORE, SCORE_REVISION);
+        Score newScore = new Score(1, 0);
+        int newRevision = SCORE_REVISION + 1;
+
+        game.updateScore(newScore, newRevision);
+        int currentRevision = game.getScoreRevision();
+
+        assertThat(currentRevision).isEqualTo(newRevision);
+    }
+
+    @Test
     void shouldRejectMissingScoreWhenScoreIsUpdated() {
         Game game = new Game(ID, SEQUENCE_NUMBER, TEAMS, SCORE, SCORE_REVISION);
         Score missingScore = null;
-        int newRevision = 1;
+        int newRevision = SCORE_REVISION + 1;
 
         Throwable failure = catchThrowable(() -> game.updateScore(missingScore, newRevision));
 
