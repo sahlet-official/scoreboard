@@ -36,4 +36,15 @@ class GameTest {
 
         assertThat(failure).isInstanceOf(NullPointerException.class);
     }
+
+    @Test
+    void shouldRejectMissingScore() {
+        Score missingScore = null;
+
+        Throwable failure = catchThrowable(
+            () -> new Game(ID, SEQUENCE_NUMBER, TEAMS, missingScore, SCORE_REVISION)
+        );
+
+        assertThat(failure).isInstanceOf(NullPointerException.class);
+    }
 }
