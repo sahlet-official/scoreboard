@@ -85,10 +85,30 @@ public interface ScoreUpdateContractTest {
             throws TeamsNotUniqueException {
         Game addedGame = gameRepository().addGameWithUniqueTeams(NEW_GAME);
         GameId id = addedGame.getId();
-        GameScore score = new GameScore(id, ANOTHER_SCORE, revisionThatIsNotNext);
+        GameScore gameScore = new GameScore(id, ANOTHER_SCORE, revisionThatIsNotNext);
 
-        Throwable failure = catchThrowable(() -> gameRepository().updateScoreIfNextRevision(score));
+        Throwable failure = catchThrowable(() -> gameRepository().updateScoreIfNextRevision(gameScore));
 
         assertThat(failure).isInstanceOf(ScoreRevisionConflictException.class);
+    }
+
+    @Test
+    default void shouldReportCurrentGameWhenScoreIsRejected() throws TeamsNotUniqueException {
+        Game addedGame = gameRepository().addGameWithUniqueTeams(NEW_GAME);
+        GameId id = addedGame.getId();
+        GameScore scoreWithCurrentRevision = new GameScore(id, ANOTHER_SCORE, NEW_GAME.scoreRevision());
+
+        ScoreRevisionConflictException exception = catchThrowableOfType(
+            ScoreRevisionConflictException.class,
+            () -> gameRepository().updateScoreIfNextRevision(scoreWithCurrentRevision)
+        );
+        Game currentGame = exception.getCurrentGame();
+
+        boolean reportsId = currentGame.getId().equals(id);
+        boolean reportsScore = currentGame.getScore().equals(NEW_GAME.score());
+        boolean reportsScoreRevision = currentGame.getScoreRevision() == NEW_GAME.scoreRevision();
+        boolean reportsCurrentGame = reportsId && reportsScore && reportsScoreRevision;
+
+        assertThat(reportsCurrentGame).isTrue();
     }
 }
