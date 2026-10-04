@@ -58,6 +58,12 @@ public class InMemoryGameRepository implements GameRepository {
     @Override
     public void updateScoreIfNextRevision(GameScore score)
             throws GameMissingException, ScoreRevisionConflictException {
+        GameId gameId = score.gameId();
+        Game game = games.get(gameId);
+        if (game == null) {
+            throw new GameMissingException(gameId);
+        }
+
         throw new UnsupportedOperationException("Not implemented yet");
     }
 
