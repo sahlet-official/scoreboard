@@ -5,6 +5,7 @@ import static org.assertj.core.api.Assertions.catchThrowable;
 import static org.assertj.core.api.Assertions.catchThrowableOfType;
 
 import dev.scoreboard.core.application.ports.inbound.exceptions.GameNotFoundException;
+import dev.scoreboard.core.application.ports.inbound.exceptions.ScoreRevisionGapException;
 import dev.scoreboard.core.application.ports.inbound.exceptions.StaleScoreRevisionException;
 import dev.scoreboard.core.application.ports.inbound.models.UpdateScoreResult;
 import dev.scoreboard.core.application.usecases.stubs.ScoreUpdateRepositoryStub;
@@ -29,6 +30,7 @@ class ScoreUpdateUseCaseTest {
 
     private static final int NEXT_REVISION = CURRENT_REVISION + 1;
     private static final int PREVIOUS_REVISION = CURRENT_REVISION - 1;
+    private static final int REVISION_AFTER_NEXT = NEXT_REVISION + 1;
 
     private static final Score ANOTHER_SCORE = new Score(3, 1);
 
@@ -42,6 +44,10 @@ class ScoreUpdateUseCaseTest {
 
     private static final GameScore SCORE_WITH_PREVIOUS_REVISION = new GameScore(
         GAME_ID, ANOTHER_SCORE, PREVIOUS_REVISION
+    );
+
+    private static final GameScore SCORE_WITH_REVISION_AFTER_NEXT = new GameScore(
+        GAME_ID, ANOTHER_SCORE, REVISION_AFTER_NEXT
     );
 
     private final ScoreUpdateRepositoryStub scoreUpdateRepositoryStub = new ScoreUpdateRepositoryStub();
@@ -137,5 +143,16 @@ class ScoreUpdateUseCaseTest {
         boolean reportsRevisionAndScore = reportsReceivedRevision && reportsCurrentScore;
 
         assertThat(reportsRevisionAndScore).isTrue();
+    }
+
+    @Test
+    void shouldRejectScoreSentWithRevisionAfterNext() {
+        scoreUpdateRepositoryStub.setGameInProgress(GAME_IN_PROGRESS);
+
+        Throwable failure = catchThrowable(
+            () -> scoreUpdateUseCase.execute(SCORE_WITH_REVISION_AFTER_NEXT)
+        );
+
+        assertThat(failure).isInstanceOf(ScoreRevisionGapException.class);
     }
 }

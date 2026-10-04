@@ -2,6 +2,7 @@ package dev.scoreboard.core.application.usecases;
 
 import dev.scoreboard.core.application.ports.inbound.ScoreUpdatePort;
 import dev.scoreboard.core.application.ports.inbound.exceptions.GameNotFoundException;
+import dev.scoreboard.core.application.ports.inbound.exceptions.ScoreRevisionGapException;
 import dev.scoreboard.core.application.ports.inbound.exceptions.StaleScoreRevisionException;
 import dev.scoreboard.core.application.ports.inbound.models.UpdateScoreResult;
 import dev.scoreboard.core.application.ports.outbound.GameRepository;
@@ -45,7 +46,14 @@ public class ScoreUpdateUseCase implements ScoreUpdatePort {
         }
 
         int receivedRevision = score.scoreRevision();
-        throw new StaleScoreRevisionException(receivedRevision, currentScore);
+        int currentRevision = currentScore.scoreRevision();
+        boolean revisionIsStale = receivedRevision <= currentRevision;
+
+        if (revisionIsStale) {
+            throw new StaleScoreRevisionException(receivedRevision, currentScore);
+        }
+
+        throw new ScoreRevisionGapException(receivedRevision, currentScore);
     }
 
     private static GameScore createGameScore(Game game) {
