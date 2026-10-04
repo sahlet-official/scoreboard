@@ -5,6 +5,7 @@ import dev.scoreboard.core.application.ports.inbound.models.GameDetails;
 import dev.scoreboard.core.application.ports.outbound.GameRepository;
 import dev.scoreboard.core.application.ports.outbound.exceptions.TeamsNotUniqueException;
 import dev.scoreboard.core.application.ports.outbound.models.NewGame;
+import dev.scoreboard.core.domain.entities.Game;
 import dev.scoreboard.core.domain.valueobjects.GameId;
 import dev.scoreboard.core.domain.valueobjects.Score;
 import dev.scoreboard.core.domain.valueobjects.TeamPair;
@@ -23,11 +24,18 @@ public class GameStartUseCase implements GameStartPort {
     public GameDetails execute(TeamPair teams) {
         NewGame newGame = new NewGame(teams, INITIAL_SCORE, INITIAL_SCORE_REVISION);
         try {
-            gameRepository.addGameWithUniqueTeams(newGame);
+            Game storedGame = gameRepository.addGameWithUniqueTeams(newGame);
+            return detailsOf(storedGame);
         } catch (TeamsNotUniqueException e) {
             throw new UnsupportedOperationException("Not implemented yet", e);
         }
-        GameId placeholderId = new GameId(0);
-        return new GameDetails(placeholderId, teams, INITIAL_SCORE, INITIAL_SCORE_REVISION);
+    }
+
+    private static GameDetails detailsOf(Game game) {
+        GameId id = game.getId();
+        TeamPair teams = game.getTeams();
+        Score score = game.getScore();
+        int scoreRevision = game.getScoreRevision();
+        return new GameDetails(id, teams, score, scoreRevision);
     }
 }

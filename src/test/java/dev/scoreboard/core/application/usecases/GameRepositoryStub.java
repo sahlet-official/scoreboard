@@ -11,6 +11,8 @@ import java.util.List;
 import java.util.Optional;
 
 class GameRepositoryStub implements GameRepository {
+    static final GameId ASSIGNED_ID = new GameId(7);
+
     private NewGame addedGame;
 
     NewGame getAddedGame() {
@@ -20,12 +22,11 @@ class GameRepositoryStub implements GameRepository {
     @Override
     public Game addGameWithUniqueTeams(NewGame game) {
         addedGame = game;
-        GameId id = new GameId(1);
-        long sequenceNumber = 1;
+        long sequenceNumber = ASSIGNED_ID.value();
         TeamPair teams = game.teams();
         Score score = game.score();
         int scoreRevision = game.scoreRevision();
-        return new Game(id, sequenceNumber, teams, score, scoreRevision);
+        return new Game(ASSIGNED_ID, sequenceNumber, teams, score, scoreRevision);
     }
 
     @Override

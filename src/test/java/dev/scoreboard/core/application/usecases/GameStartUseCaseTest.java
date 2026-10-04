@@ -2,7 +2,9 @@ package dev.scoreboard.core.application.usecases;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
+import dev.scoreboard.core.application.ports.inbound.models.GameDetails;
 import dev.scoreboard.core.application.ports.outbound.models.NewGame;
+import dev.scoreboard.core.domain.valueobjects.GameId;
 import dev.scoreboard.core.domain.valueobjects.Score;
 import dev.scoreboard.core.domain.valueobjects.TeamPair;
 import org.junit.jupiter.api.Test;
@@ -42,5 +44,13 @@ class GameStartUseCaseTest {
         TeamPair teams = addedGame.teams();
 
         assertThat(teams).isEqualTo(TEAMS);
+    }
+
+    @Test
+    void shouldReturnGameWithIdAssignedByRepository() {
+        GameDetails game = gameStartUseCase.execute(TEAMS);
+        GameId id = game.id();
+
+        assertThat(id).isEqualTo(GameRepositoryStub.ASSIGNED_ID);
     }
 }
