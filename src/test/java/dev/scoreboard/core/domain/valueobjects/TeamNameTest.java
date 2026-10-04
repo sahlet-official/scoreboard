@@ -45,8 +45,9 @@ class TeamNameTest {
 
     @Test
     void shouldTreatSameNamesAsSameTeam() {
-        TeamName first = new TeamName("Mexico");
-        TeamName second = new TeamName("Mexico");
+        String name = "Mexico";
+        TeamName first = new TeamName(name);
+        TeamName second = new TeamName(name);
 
         boolean sameTeam = first.equals(second);
 
