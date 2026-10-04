@@ -61,4 +61,14 @@ class GameStartUseCaseTest {
 
         assertThat(teams).isEqualTo(TEAMS);
     }
+
+    @Test
+    void shouldReturnGameWithZeroScore() {
+        Score zeroScore = new Score(0, 0);
+
+        GameDetails game = gameStartUseCase.execute(TEAMS);
+        Score score = game.score();
+
+        assertThat(score).isEqualTo(zeroScore);
+    }
 }
