@@ -20,18 +20,27 @@ class ScoreUpdateUseCaseTest {
     private static final GameId GAME_ID = new GameId(7);
     private static final long SEQUENCE_NUMBER = 7;
     private static final TeamPair TEAMS = TeamPair.of("Mexico", "Canada");
-    private static final Score CURRENT_SCORE = new Score(0, 0);
-    private static final int CURRENT_REVISION = 0;
+    private static final Score CURRENT_SCORE = new Score(2, 1);
+    private static final int CURRENT_REVISION = 5;
 
     private static final Game GAME_IN_PROGRESS = new Game(
         GAME_ID, SEQUENCE_NUMBER, TEAMS, CURRENT_SCORE, CURRENT_REVISION
     );
 
     private static final int NEXT_REVISION = CURRENT_REVISION + 1;
-    private static final GameScore NEW_SCORE = new GameScore(GAME_ID, new Score(1, 0), NEXT_REVISION);
+    private static final int PREVIOUS_REVISION = CURRENT_REVISION - 1;
+
+    private static final Score ANOTHER_SCORE = new Score(3, 1);
+
+    private static final GameScore NEW_SCORE = new GameScore(GAME_ID, ANOTHER_SCORE, NEXT_REVISION);
     private static final GameScore REPEATED_SCORE = new GameScore(GAME_ID, CURRENT_SCORE, CURRENT_REVISION);
+
     private static final GameScore DIFFERENT_SCORE_WITH_CURRENT_REVISION = new GameScore(
-        GAME_ID, new Score(1, 0), CURRENT_REVISION
+        GAME_ID, ANOTHER_SCORE, CURRENT_REVISION
+    );
+
+    private static final GameScore SCORE_WITH_PREVIOUS_REVISION = new GameScore(
+        GAME_ID, ANOTHER_SCORE, PREVIOUS_REVISION
     );
 
     private final ScoreUpdateRepositoryStub scoreUpdateRepositoryStub = new ScoreUpdateRepositoryStub();
@@ -98,6 +107,17 @@ class ScoreUpdateUseCaseTest {
 
         Throwable failure = catchThrowable(
             () -> scoreUpdateUseCase.execute(DIFFERENT_SCORE_WITH_CURRENT_REVISION)
+        );
+
+        assertThat(failure).isInstanceOf(StaleScoreRevisionException.class);
+    }
+
+    @Test
+    void shouldRejectScoreSentWithPreviousRevision() {
+        scoreUpdateRepositoryStub.setGameInProgress(GAME_IN_PROGRESS);
+
+        Throwable failure = catchThrowable(
+            () -> scoreUpdateUseCase.execute(SCORE_WITH_PREVIOUS_REVISION)
         );
 
         assertThat(failure).isInstanceOf(StaleScoreRevisionException.class);
