@@ -28,8 +28,9 @@ class TeamPairTest {
 
     @Test
     void shouldRejectSameTeamOnBothSides() {
-        TeamName mexico = new TeamName("Mexico");
-        TeamName sameTeam = new TeamName("Mexico");
+        String name = "Mexico";
+        TeamName mexico = new TeamName(name);
+        TeamName sameTeam = new TeamName(name);
 
         Throwable failure = catchThrowable(() -> new TeamPair(mexico, sameTeam));
 
@@ -38,8 +39,10 @@ class TeamPairTest {
 
     @Test
     void shouldTreatPairsWithSameTeamsAsSamePair() {
-        TeamPair first = new TeamPair(new TeamName("Mexico"), new TeamName("Canada"));
-        TeamPair second = new TeamPair(new TeamName("Mexico"), new TeamName("Canada"));
+        TeamName mexico = new TeamName("Mexico");
+        TeamName canada = new TeamName("Canada");
+        TeamPair first = new TeamPair(mexico, canada);
+        TeamPair second = new TeamPair(mexico, canada);
 
         boolean samePair = first.equals(second);
 
@@ -58,8 +61,10 @@ class TeamPairTest {
 
     @Test
     void shouldTreatPairsWithSameTeamsInReverseOrderAsDifferentPairs() {
-        TeamPair mexicoAtHome = new TeamPair(new TeamName("Mexico"), new TeamName("Canada"));
-        TeamPair canadaAtHome = new TeamPair(new TeamName("Canada"), new TeamName("Mexico"));
+        TeamName mexico = new TeamName("Mexico");
+        TeamName canada = new TeamName("Canada");
+        TeamPair mexicoAtHome = new TeamPair(mexico, canada);
+        TeamPair canadaAtHome = new TeamPair(canada, mexico);
 
         boolean samePair = mexicoAtHome.equals(canadaAtHome);
 
@@ -68,9 +73,11 @@ class TeamPairTest {
 
     @Test
     void shouldBeCreatedFromTeamNamesGivenAsText() {
-        TeamPair expected = new TeamPair(new TeamName("Mexico"), new TeamName("Canada"));
+        String mexico = "Mexico";
+        String canada = "Canada";
+        TeamPair expected = new TeamPair(new TeamName(mexico), new TeamName(canada));
 
-        TeamPair teams = TeamPair.of("Mexico", "Canada");
+        TeamPair teams = TeamPair.of(mexico, canada);
 
         assertThat(teams).isEqualTo(expected);
     }
