@@ -9,16 +9,18 @@ import dev.scoreboard.core.domain.valueobjects.TeamPair;
 import org.junit.jupiter.api.Test;
 
 class GameTest {
+    private static final GameId ID = new GameId(7);
+    private static final long SEQUENCE_NUMBER = 7;
+    private static final TeamPair TEAMS = TeamPair.of("Mexico", "Canada");
+    private static final Score SCORE = new Score(0, 0);
+    private static final int SCORE_REVISION = 0;
+
     @Test
     void shouldRejectMissingId() {
         GameId missingId = null;
-        long sequenceNumber = 7;
-        TeamPair teams = TeamPair.of("Mexico", "Canada");
-        Score score = new Score(0, 0);
-        int scoreRevision = 0;
 
         Throwable failure = catchThrowable(
-            () -> new Game(missingId, sequenceNumber, teams, score, scoreRevision)
+            () -> new Game(missingId, SEQUENCE_NUMBER, TEAMS, SCORE, SCORE_REVISION)
         );
 
         assertThat(failure).isInstanceOf(NullPointerException.class);
@@ -26,14 +28,10 @@ class GameTest {
 
     @Test
     void shouldRejectMissingTeams() {
-        GameId id = new GameId(7);
-        long sequenceNumber = 7;
         TeamPair missingTeams = null;
-        Score score = new Score(0, 0);
-        int scoreRevision = 0;
 
         Throwable failure = catchThrowable(
-            () -> new Game(id, sequenceNumber, missingTeams, score, scoreRevision)
+            () -> new Game(ID, SEQUENCE_NUMBER, missingTeams, SCORE, SCORE_REVISION)
         );
 
         assertThat(failure).isInstanceOf(NullPointerException.class);
