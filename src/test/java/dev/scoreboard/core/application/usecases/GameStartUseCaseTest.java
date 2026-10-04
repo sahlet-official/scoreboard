@@ -129,6 +129,25 @@ class GameStartUseCaseTest {
         assertThat(failure).isInstanceOf(TeamAlreadyPlayingException.class);
     }
 
+    @Test
+    void shouldReportHomeTeamAndIdOfAnotherGameWhereItIsPlaying() {
+        TeamName homeTeamName = TEAMS.homeTeam();
+        TeamPair teamsOfAnotherGame = new TeamPair(homeTeamName, ANOTHER_TEAM_NAME);
+        Game anotherGame = gameInProgress(teamsOfAnotherGame);
+        GameId idOfAnotherGame = anotherGame.getId();
+        gameStartRepositoryStub.setGameInProgress(anotherGame);
+
+        TeamAlreadyPlayingException exception = catchThrowableOfType(
+            TeamAlreadyPlayingException.class,
+            () -> gameStartUseCase.execute(TEAMS)
+        );
+        boolean reportsTeamName = exception.getTeamName().equals(homeTeamName);
+        boolean reportsGameId = exception.getGameId().equals(idOfAnotherGame);
+        boolean reportsTeamNameAndGameId = reportsTeamName && reportsGameId;
+
+        assertThat(reportsTeamNameAndGameId).isTrue();
+    }
+
     private static Game gameInProgress(TeamPair teams) {
         GameId id = new GameId(3);
         long sequenceNumber = 3;
