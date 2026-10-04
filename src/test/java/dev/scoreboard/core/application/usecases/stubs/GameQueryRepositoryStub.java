@@ -33,7 +33,17 @@ public class GameQueryRepositoryStub implements GameRepository {
 
     @Override
     public Optional<Game> findGame(TeamPair teams) {
-        throw new UnsupportedOperationException();
+        if (game == null) {
+            return Optional.empty();
+        }
+
+        TeamPair teamsOfGame = game.getTeams();
+        boolean found = teams.equals(teamsOfGame);
+        if (!found) {
+            return Optional.empty();
+        }
+
+        return Optional.of(game);
     }
 
     @Override

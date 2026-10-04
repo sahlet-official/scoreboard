@@ -6,7 +6,7 @@ import static org.assertj.core.api.Assertions.catchThrowableOfType;
 
 import dev.scoreboard.core.application.ports.inbound.exceptions.GameNotFoundException;
 import dev.scoreboard.core.application.ports.inbound.models.GameDetails;
-import dev.scoreboard.core.application.usecases.stubs.GameByTeamsQueryRepositoryStub;
+import dev.scoreboard.core.application.usecases.stubs.GameQueryRepositoryStub;
 import dev.scoreboard.core.domain.entities.Game;
 import dev.scoreboard.core.domain.valueobjects.GameId;
 import dev.scoreboard.core.domain.valueobjects.Score;
@@ -29,10 +29,9 @@ class GameByTeamsQueryUseCaseTest {
         GAME_ID, TEAMS, SCORE, SCORE_REVISION
     );
 
-    private final GameByTeamsQueryRepositoryStub gameByTeamsQueryRepositoryStub =
-        new GameByTeamsQueryRepositoryStub();
+    private final GameQueryRepositoryStub gameQueryRepositoryStub = new GameQueryRepositoryStub();
     private final GameByTeamsQueryUseCase gameByTeamsQueryUseCase =
-        new GameByTeamsQueryUseCase(gameByTeamsQueryRepositoryStub);
+        new GameByTeamsQueryUseCase(gameQueryRepositoryStub);
 
     @Test
     void shouldRejectMissingTeams() {
@@ -63,7 +62,7 @@ class GameByTeamsQueryUseCaseTest {
 
     @Test
     void shouldReturnDetailsOfFoundGame() {
-        gameByTeamsQueryRepositoryStub.setGame(GAME);
+        gameQueryRepositoryStub.setGame(GAME);
 
         GameDetails gameDetails = gameByTeamsQueryUseCase.execute(TEAMS);
 
