@@ -67,4 +67,14 @@ class ScoreUpdateUseCaseTest {
 
         assertThat(result).isEqualTo(UpdateScoreResult.UPDATED);
     }
+
+    @Test
+    void shouldPassGivenScoreToRepositoryWhenScoreRevisionIsNext() {
+        scoreUpdateRepositoryStub.setGameInProgress(GAME_IN_PROGRESS);
+
+        scoreUpdateUseCase.execute(NEW_SCORE);
+        GameScore updatedScore = scoreUpdateRepositoryStub.getUpdatedScore();
+
+        assertThat(updatedScore).isEqualTo(NEW_SCORE);
+    }
 }
