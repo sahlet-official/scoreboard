@@ -10,19 +10,28 @@ import dev.scoreboard.core.domain.valueobjects.GameId;
 import dev.scoreboard.core.domain.valueobjects.GameScore;
 import dev.scoreboard.core.domain.valueobjects.Score;
 import dev.scoreboard.core.domain.valueobjects.TeamPair;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.Optional;
 
 public class InMemoryGameRepository implements GameRepository {
+    private final Map<GameId, Game> games = new HashMap<>();
+    private long nextId = 1;
+
     @Override
     public Game addGameWithUniqueTeams(NewGame game) throws TeamsNotUniqueException {
-        GameId placeholderId = new GameId(0);
-        long placeholderSequenceNumber = 0;
+        GameId id = new GameId(nextId);
+        long sequenceNumber = nextId;
+        nextId++;
 
         TeamPair teams = game.teams();
         Score score = game.score();
         int scoreRevision = game.scoreRevision();
-        return new Game(placeholderId, placeholderSequenceNumber, teams, score, scoreRevision);
+        Game addedGame = new Game(id, sequenceNumber, teams, score, scoreRevision);
+
+        games.put(id, addedGame);
+        return addedGame;
     }
 
     @Override
@@ -38,7 +47,8 @@ public class InMemoryGameRepository implements GameRepository {
 
     @Override
     public Optional<Game> findGame(GameId id) {
-        throw new UnsupportedOperationException("Not implemented yet");
+        Game game = games.get(id);
+        return Optional.ofNullable(game);
     }
 
     @Override

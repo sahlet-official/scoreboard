@@ -5,9 +5,11 @@ import static org.assertj.core.api.Assertions.assertThat;
 import dev.scoreboard.core.application.ports.outbound.exceptions.TeamsNotUniqueException;
 import dev.scoreboard.core.application.ports.outbound.models.NewGame;
 import dev.scoreboard.core.domain.entities.Game;
+import dev.scoreboard.core.domain.valueobjects.GameId;
 import dev.scoreboard.core.domain.valueobjects.Score;
 import dev.scoreboard.core.domain.valueobjects.TeamPair;
 import java.util.List;
+import java.util.Optional;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
@@ -43,5 +45,16 @@ public abstract class GameRepositoryContractTest {
         boolean keepsGivenValues = keepsTeams && keepsScore && keepsScoreRevision;
 
         assertThat(keepsGivenValues).isTrue();
+    }
+
+    @Test
+    void shouldFindAddedGameById() throws TeamsNotUniqueException {
+        Game addedGame = gameRepository.addGameWithUniqueTeams(NEW_GAME);
+        GameId id = addedGame.getId();
+
+        Optional<Game> foundGame = gameRepository.findGame(id);
+        Optional<TeamPair> teamsOfFoundGame = foundGame.map(Game::getTeams);
+
+        assertThat(teamsOfFoundGame).contains(MEXICO_CANADA);
     }
 }
