@@ -62,6 +62,17 @@ public abstract class GameRepositoryContractTest {
     }
 
     @Test
+    void shouldFindAddedGameByTeams() throws TeamsNotUniqueException {
+        Game addedGame = gameRepository.addGameWithUniqueTeams(NEW_GAME);
+        GameId id = addedGame.getId();
+
+        Optional<Game> foundGame = gameRepository.findGame(MEXICO_CANADA);
+        Optional<GameId> idOfFoundGame = foundGame.map(Game::getId);
+
+        assertThat(idOfFoundGame).contains(id);
+    }
+
+    @Test
     void shouldListAllAddedGames() throws TeamsNotUniqueException {
         gameRepository.addGameWithUniqueTeams(NEW_GAME);
         gameRepository.addGameWithUniqueTeams(ANOTHER_NEW_GAME);

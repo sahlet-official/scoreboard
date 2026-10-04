@@ -9,6 +9,7 @@ import dev.scoreboard.core.domain.entities.Game;
 import dev.scoreboard.core.domain.valueobjects.GameId;
 import dev.scoreboard.core.domain.valueobjects.GameScore;
 import dev.scoreboard.core.domain.valueobjects.Score;
+import dev.scoreboard.core.domain.valueobjects.TeamName;
 import dev.scoreboard.core.domain.valueobjects.TeamPair;
 import java.util.Collection;
 import java.util.HashMap;
@@ -18,6 +19,7 @@ import java.util.Optional;
 
 public class InMemoryGameRepository implements GameRepository {
     private final Map<GameId, Game> games = new HashMap<>();
+    private final Map<TeamName, GameId> gameIdsByTeamName = new HashMap<>();
     private long nextId = 1;
 
     @Override
@@ -31,7 +33,12 @@ public class InMemoryGameRepository implements GameRepository {
         int scoreRevision = game.scoreRevision();
         Game addedGame = new Game(id, sequenceNumber, teams, score, scoreRevision);
 
+        TeamName homeTeam = teams.homeTeam();
+        TeamName awayTeam = teams.awayTeam();
         games.put(id, addedGame);
+        gameIdsByTeamName.put(homeTeam, id);
+        gameIdsByTeamName.put(awayTeam, id);
+
         return addedGame;
     }
 
@@ -54,7 +61,20 @@ public class InMemoryGameRepository implements GameRepository {
 
     @Override
     public Optional<Game> findGame(TeamPair teams) {
-        throw new UnsupportedOperationException("Not implemented yet");
+        TeamName homeTeam = teams.homeTeam();
+        GameId idOfGameWithHomeTeam = gameIdsByTeamName.get(homeTeam);
+        if (idOfGameWithHomeTeam == null) {
+            return Optional.empty();
+        }
+
+        Game gameWithHomeTeam = games.get(idOfGameWithHomeTeam);
+        TeamPair teamsOfGame = gameWithHomeTeam.getTeams();
+        boolean found = teams.equals(teamsOfGame);
+        if (!found) {
+            return Optional.empty();
+        }
+
+        return Optional.of(gameWithHomeTeam);
     }
 
     @Override
