@@ -2,6 +2,7 @@ package dev.scoreboard.core.application.ports.outbound;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.catchThrowable;
+import static org.assertj.core.api.Assertions.catchThrowableOfType;
 
 import dev.scoreboard.core.application.ports.outbound.exceptions.TeamsNotUniqueException;
 import dev.scoreboard.core.application.ports.outbound.models.NewGame;
@@ -76,6 +77,21 @@ public abstract class GameRepositoryContractTest {
         );
 
         assertThat(failure).isInstanceOf(TeamsNotUniqueException.class);
+    }
+
+    @Test
+    void shouldReportGameWhereTeamIsPlayingWhenGameIsRejected() throws TeamsNotUniqueException {
+        Game gameInProgress = gameRepository.addGameWithUniqueTeams(NEW_GAME);
+        GameId idOfGameInProgress = gameInProgress.getId();
+
+        TeamsNotUniqueException exception = catchThrowableOfType(
+            TeamsNotUniqueException.class,
+            () -> gameRepository.addGameWithUniqueTeams(NEW_GAME_WITH_SAME_HOME_TEAM)
+        );
+        Game conflictingGame = exception.getConflictingGame();
+        GameId idOfConflictingGame = conflictingGame.getId();
+
+        assertThat(idOfConflictingGame).isEqualTo(idOfGameInProgress);
     }
 
     @Test
