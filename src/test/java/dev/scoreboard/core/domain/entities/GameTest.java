@@ -59,4 +59,23 @@ class GameTest {
 
         assertThat(failure).isInstanceOf(IllegalArgumentException.class);
     }
+
+    @Test
+    void shouldKeepGivenValues() {
+        Game game = new Game(ID, SEQUENCE_NUMBER, TEAMS, SCORE, SCORE_REVISION);
+
+        boolean keepsId = game.getId().equals(ID);
+        boolean keepsSequenceNumber = game.getSequenceNumber() == SEQUENCE_NUMBER;
+        boolean keepsTeams = game.getTeams().equals(TEAMS);
+        boolean keepsScore = game.getScore().equals(SCORE);
+        boolean keepsScoreRevision = game.getScoreRevision() == SCORE_REVISION;
+        
+        boolean keepsGivenValues = keepsId
+            && keepsSequenceNumber
+            && keepsTeams
+            && keepsScore
+            && keepsScoreRevision;
+
+        assertThat(keepsGivenValues).isTrue();
+    }
 }
