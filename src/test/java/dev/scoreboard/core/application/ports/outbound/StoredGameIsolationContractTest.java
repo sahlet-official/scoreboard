@@ -46,6 +46,17 @@ public interface StoredGameIsolationContractTest {
         assertThat(storedScore).isEqualTo(NEW_GAME.score());
     }
 
+    @Test
+    default void shouldKeepStoredScoreWhenGameFromListOfAllGamesIsChanged() throws TeamsNotUniqueException {
+        gameRepository().addGameWithUniqueTeams(NEW_GAME);
+        Game gameFromList = gameRepository().findAllGames().get(0);
+
+        changeScore(gameFromList);
+        Score storedScore = findStoredScore();
+
+        assertThat(storedScore).isEqualTo(NEW_GAME.score());
+    }
+
     private static void changeScore(Game game) {
         game.updateScore(ANOTHER_SCORE, NEXT_SCORE_REVISION);
     }
