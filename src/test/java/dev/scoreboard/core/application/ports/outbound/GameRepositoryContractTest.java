@@ -69,6 +69,17 @@ public abstract class GameRepositoryContractTest {
     }
 
     @Test
+    void shouldAssignGreaterSequenceNumberToGameAddedLater() throws TeamsNotUniqueException {
+        Game firstGame = gameRepository.addGameWithUniqueTeams(NEW_GAME);
+        Game secondGame = gameRepository.addGameWithUniqueTeams(ANOTHER_NEW_GAME);
+
+        long sequenceNumberOfFirstGame = firstGame.getSequenceNumber();
+        long sequenceNumberOfSecondGame = secondGame.getSequenceNumber();
+
+        assertThat(sequenceNumberOfSecondGame).isGreaterThan(sequenceNumberOfFirstGame);
+    }
+
+    @Test
     void shouldRejectGameWhenItsHomeTeamIsPlayingInAnotherGame() throws TeamsNotUniqueException {
         gameRepository.addGameWithUniqueTeams(NEW_GAME);
 
