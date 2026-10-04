@@ -71,4 +71,14 @@ class GameStartUseCaseTest {
 
         assertThat(score).isEqualTo(zeroScore);
     }
+
+    @Test
+    void shouldReturnGameWithZeroScoreRevision() {
+        int zeroRevision = 0;
+
+        GameDetails game = gameStartUseCase.execute(TEAMS);
+        int scoreRevision = game.scoreRevision();
+
+        assertThat(scoreRevision).isEqualTo(zeroRevision);
+    }
 }
