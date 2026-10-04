@@ -11,6 +11,7 @@ import dev.scoreboard.core.domain.valueobjects.GameScore;
 import dev.scoreboard.core.domain.valueobjects.Score;
 import dev.scoreboard.core.domain.valueobjects.TeamName;
 import dev.scoreboard.core.domain.valueobjects.TeamPair;
+import java.util.ArrayList;
 import java.util.Collection;
 import java.util.HashMap;
 import java.util.List;
@@ -18,7 +19,10 @@ import java.util.Map;
 import java.util.Optional;
 
 public class InMemoryGameRepository implements GameRepository {
-    private final Map<GameId, Game> games = new HashMap<>();
+    private record StoredGame(GameId id, TeamPair teams, Score score, int scoreRevision) {
+    }
+
+    private final Map<GameId, StoredGame> storedGames = new HashMap<>();
     private final Map<TeamName, GameId> gameIdsByTeamName = new HashMap<>();
     private long nextId = 1;
 
@@ -31,18 +35,17 @@ public class InMemoryGameRepository implements GameRepository {
         ensureTeamIsNotPlaying(awayTeam);
 
         GameId id = new GameId(nextId);
-        long sequenceNumber = nextId;
         nextId++;
 
         Score score = game.score();
         int scoreRevision = game.scoreRevision();
-        Game addedGame = new Game(id, sequenceNumber, teams, score, scoreRevision);
+        StoredGame storedGame = new StoredGame(id, teams, score, scoreRevision);
 
-        games.put(id, addedGame);
+        storedGames.put(id, storedGame);
         gameIdsByTeamName.put(homeTeam, id);
         gameIdsByTeamName.put(awayTeam, id);
 
-        return addedGame;
+        return createGame(storedGame);
     }
 
     private void ensureTeamIsNotPlaying(TeamName teamName) throws TeamsNotUniqueException {
@@ -51,7 +54,8 @@ public class InMemoryGameRepository implements GameRepository {
             return;
         }
 
-        Game gameWithTeam = games.get(idOfGameWithTeam);
+        StoredGame storedGameWithTeam = storedGames.get(idOfGameWithTeam);
+        Game gameWithTeam = createGame(storedGameWithTeam);
         throw new TeamsNotUniqueException(gameWithTeam);
     }
 
@@ -59,20 +63,23 @@ public class InMemoryGameRepository implements GameRepository {
     public void updateScoreIfNextRevision(GameScore gameScore)
             throws GameMissingException, ScoreRevisionConflictException {
         GameId gameId = gameScore.gameId();
-        Game game = games.get(gameId);
-        if (game == null) {
+        StoredGame storedGame = storedGames.get(gameId);
+        if (storedGame == null) {
             throw new GameMissingException(gameId);
         }
 
-        int storedScoreRevision = game.getScoreRevision();
+        int storedScoreRevision = storedGame.scoreRevision();
         int newScoreRevision = gameScore.scoreRevision();
         boolean revisionIsNext = newScoreRevision - 1 == storedScoreRevision;
         if (!revisionIsNext) {
-            throw new ScoreRevisionConflictException(game);
+            Game currentGame = createGame(storedGame);
+            throw new ScoreRevisionConflictException(currentGame);
         }
 
+        TeamPair teams = storedGame.teams();
         Score newScore = gameScore.score();
-        game.updateScore(newScore, newScoreRevision);
+        StoredGame updatedGame = new StoredGame(gameId, teams, newScore, newScoreRevision);
+        storedGames.put(gameId, updatedGame);
     }
 
     @Override
@@ -82,8 +89,13 @@ public class InMemoryGameRepository implements GameRepository {
 
     @Override
     public Optional<Game> findGame(GameId id) {
-        Game game = games.get(id);
-        return Optional.ofNullable(game);
+        StoredGame storedGame = storedGames.get(id);
+        if (storedGame == null) {
+            return Optional.empty();
+        }
+
+        Game game = createGame(storedGame);
+        return Optional.of(game);
     }
 
     @Override
@@ -94,19 +106,36 @@ public class InMemoryGameRepository implements GameRepository {
             return Optional.empty();
         }
 
-        Game gameWithHomeTeam = games.get(idOfGameWithHomeTeam);
-        TeamPair teamsOfGame = gameWithHomeTeam.getTeams();
+        StoredGame storedGameWithHomeTeam = storedGames.get(idOfGameWithHomeTeam);
+        TeamPair teamsOfGame = storedGameWithHomeTeam.teams();
         boolean found = teams.equals(teamsOfGame);
         if (!found) {
             return Optional.empty();
         }
 
-        return Optional.of(gameWithHomeTeam);
+        Game game = createGame(storedGameWithHomeTeam);
+        return Optional.of(game);
     }
 
     @Override
     public List<Game> findAllGames() {
-        Collection<Game> allGames = games.values();
-        return List.copyOf(allGames);
+        Collection<StoredGame> allStoredGames = storedGames.values();
+
+        List<Game> games = new ArrayList<>();
+        for (StoredGame storedGame : allStoredGames) {
+            Game game = createGame(storedGame);
+            games.add(game);
+        }
+
+        return games;
+    }
+
+    private static Game createGame(StoredGame storedGame) {
+        GameId id = storedGame.id();
+        long sequenceNumber = id.value();
+        TeamPair teams = storedGame.teams();
+        Score score = storedGame.score();
+        int scoreRevision = storedGame.scoreRevision();
+        return new Game(id, sequenceNumber, teams, score, scoreRevision);
     }
 }
