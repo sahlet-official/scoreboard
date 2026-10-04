@@ -33,7 +33,8 @@ class ScoreUpdateUseCaseTest {
     private static final Score ANOTHER_SCORE = new Score(3, 1);
 
     private static final GameScore NEW_SCORE = new GameScore(GAME_ID, ANOTHER_SCORE, NEXT_REVISION);
-    private static final GameScore REPEATED_SCORE = new GameScore(GAME_ID, CURRENT_SCORE, CURRENT_REVISION);
+    private static final GameScore CURRENT_GAME_SCORE = new GameScore(GAME_ID, CURRENT_SCORE, CURRENT_REVISION);
+    private static final GameScore REPEATED_SCORE = CURRENT_GAME_SCORE;
 
     private static final GameScore DIFFERENT_SCORE_WITH_CURRENT_REVISION = new GameScore(
         GAME_ID, ANOTHER_SCORE, CURRENT_REVISION
@@ -121,5 +122,20 @@ class ScoreUpdateUseCaseTest {
         );
 
         assertThat(failure).isInstanceOf(StaleScoreRevisionException.class);
+    }
+
+    @Test
+    void shouldReportReceivedRevisionAndCurrentScoreWhenRevisionIsStale() {
+        scoreUpdateRepositoryStub.setGameInProgress(GAME_IN_PROGRESS);
+
+        StaleScoreRevisionException exception = catchThrowableOfType(
+            StaleScoreRevisionException.class,
+            () -> scoreUpdateUseCase.execute(SCORE_WITH_PREVIOUS_REVISION)
+        );
+        boolean reportsReceivedRevision = exception.getReceivedRevision() == PREVIOUS_REVISION;
+        boolean reportsCurrentScore = exception.getCurrentScore().equals(CURRENT_GAME_SCORE);
+        boolean reportsRevisionAndScore = reportsReceivedRevision && reportsCurrentScore;
+
+        assertThat(reportsRevisionAndScore).isTrue();
     }
 }
