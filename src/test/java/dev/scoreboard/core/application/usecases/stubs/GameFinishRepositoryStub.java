@@ -1,6 +1,7 @@
 package dev.scoreboard.core.application.usecases.stubs;
 
 import dev.scoreboard.core.application.ports.outbound.GameRepository;
+import dev.scoreboard.core.application.ports.outbound.exceptions.GameMissingException;
 import dev.scoreboard.core.application.ports.outbound.models.NewGame;
 import dev.scoreboard.core.domain.entities.Game;
 import dev.scoreboard.core.domain.valueobjects.GameId;
@@ -10,14 +11,23 @@ import java.util.List;
 import java.util.Optional;
 
 public class GameFinishRepositoryStub implements GameRepository {
+    private boolean gameMissing;
     private GameId removedGameId;
+
+    public void setGameMissing(boolean gameMissing) {
+        this.gameMissing = gameMissing;
+    }
 
     public GameId getRemovedGameId() {
         return removedGameId;
     }
 
     @Override
-    public void removeGame(GameId id) {
+    public void removeGame(GameId id) throws GameMissingException {
+        if (gameMissing) {
+            throw new GameMissingException(id);
+        }
+
         removedGameId = id;
     }
 
