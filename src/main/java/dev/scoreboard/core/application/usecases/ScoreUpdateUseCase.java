@@ -40,6 +40,14 @@ public class ScoreUpdateUseCase implements ScoreUpdatePort {
     }
 
     private static UpdateScoreResult resolveRevisionConflict(GameScore score, GameScore currentScore) {
+        GameId gameId = score.gameId();
+        GameId currentGameId = currentScore.gameId();
+        boolean sameGame = gameId.equals(currentGameId);
+
+        if (!sameGame) {
+            throw new IllegalStateException("Score revision conflict reported for another game");
+        }
+
         boolean currentScoreSentAgain = score.equals(currentScore);
         if (currentScoreSentAgain) {
             return UpdateScoreResult.UNCHANGED;
