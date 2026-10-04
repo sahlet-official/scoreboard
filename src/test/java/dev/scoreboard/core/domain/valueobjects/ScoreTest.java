@@ -14,4 +14,12 @@ class ScoreTest {
 
         assertThat(failure).isInstanceOf(IllegalArgumentException.class);
     }
+
+    @ParameterizedTest
+    @ValueSource(ints = {-1, -2, Integer.MIN_VALUE})
+    void shouldRejectNegativeAwayScore(int negativeScore) {
+        Throwable failure = catchThrowable(() -> new Score(0, negativeScore));
+
+        assertThat(failure).isInstanceOf(IllegalArgumentException.class);
+    }
 }

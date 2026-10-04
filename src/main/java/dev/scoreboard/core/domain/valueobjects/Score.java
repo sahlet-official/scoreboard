@@ -3,6 +3,7 @@ package dev.scoreboard.core.domain.valueobjects;
 public record Score(int home, int away) {
     public Score {
         ensureIsNotNegative(home);
+        ensureIsNotNegative(away);
     }
 
     private static void ensureIsNotNegative(int score) {
