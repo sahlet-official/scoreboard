@@ -10,9 +10,25 @@ import java.util.List;
 import java.util.Optional;
 
 public class GameQueryRepositoryStub implements GameRepository {
+    private Game game;
+
+    public void setGame(Game game) {
+        this.game = game;
+    }
+
     @Override
     public Optional<Game> findGame(GameId id) {
-        return Optional.empty();
+        if (game == null) {
+            return Optional.empty();
+        }
+
+        GameId idOfGame = game.getId();
+        boolean found = id.equals(idOfGame);
+        if (!found) {
+            return Optional.empty();
+        }
+
+        return Optional.of(game);
     }
 
     @Override

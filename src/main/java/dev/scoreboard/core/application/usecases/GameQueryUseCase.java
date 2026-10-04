@@ -4,10 +4,9 @@ import dev.scoreboard.core.application.ports.inbound.GameQueryPort;
 import dev.scoreboard.core.application.ports.inbound.exceptions.GameNotFoundException;
 import dev.scoreboard.core.application.ports.inbound.models.GameDetails;
 import dev.scoreboard.core.application.ports.outbound.GameRepository;
+import dev.scoreboard.core.application.usecases.mappers.GameDetailsMapper;
 import dev.scoreboard.core.domain.entities.Game;
 import dev.scoreboard.core.domain.valueobjects.GameId;
-import dev.scoreboard.core.domain.valueobjects.Score;
-import dev.scoreboard.core.domain.valueobjects.TeamPair;
 import java.util.Optional;
 
 public class GameQueryUseCase implements GameQueryPort {
@@ -27,9 +26,8 @@ public class GameQueryUseCase implements GameQueryPort {
             throw new GameNotFoundException(gameId);
         }
 
-        TeamPair placeholderTeams = TeamPair.of("Home", "Away");
-        Score placeholderScore = new Score(0, 0);
-        return new GameDetails(gameId, placeholderTeams, placeholderScore, 0);
+        Game game = foundGame.get();
+        return GameDetailsMapper.createGameDetails(game);
     }
 
     private static void ensureGameIdIsNotNull(GameId gameId) {
