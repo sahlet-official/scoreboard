@@ -111,4 +111,17 @@ public interface ScoreUpdateContractTest {
 
         assertThat(reportsCurrentGame).isTrue();
     }
+
+    @Test
+    default void shouldKeepStoredScoreWhenScoreIsRejected() throws TeamsNotUniqueException {
+        Game addedGame = gameRepository().addGameWithUniqueTeams(NEW_GAME);
+        GameId id = addedGame.getId();
+        GameScore scoreWithCurrentRevision = new GameScore(id, ANOTHER_SCORE, NEW_GAME.scoreRevision());
+        catchThrowable(() -> gameRepository().updateScoreIfNextRevision(scoreWithCurrentRevision));
+
+        Optional<Game> foundGame = gameRepository().findGame(id);
+        Optional<Score> storedScore = foundGame.map(Game::getScore);
+
+        assertThat(storedScore).contains(NEW_GAME.score());
+    }
 }
