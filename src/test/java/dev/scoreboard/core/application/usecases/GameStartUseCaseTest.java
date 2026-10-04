@@ -53,4 +53,12 @@ class GameStartUseCaseTest {
 
         assertThat(id).isEqualTo(GameRepositoryStub.ASSIGNED_ID);
     }
+
+    @Test
+    void shouldReturnGameWithGivenTeams() {
+        GameDetails game = gameStartUseCase.execute(TEAMS);
+        TeamPair teams = game.teams();
+
+        assertThat(teams).isEqualTo(TEAMS);
+    }
 }
