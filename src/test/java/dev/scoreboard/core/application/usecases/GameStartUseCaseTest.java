@@ -18,7 +18,21 @@ import org.junit.jupiter.api.Test;
 
 class GameStartUseCaseTest {
     private static final TeamPair TEAMS = TeamPair.of("Mexico", "Canada");
+    private static final TeamName HOME_TEAM_NAME = TEAMS.homeTeam();
+    private static final TeamName AWAY_TEAM_NAME = TEAMS.awayTeam();
+    private static final TeamPair ANOTHER_TEAMS = TeamPair.of("Spain", "Germany");
     private static final TeamName ANOTHER_TEAM_NAME = new TeamName("Brazil");
+
+    private static final GameId ID_OF_GAME_IN_PROGRESS = new GameId(3);
+    private static final Game SAME_GAME = gameInProgress(TEAMS);
+
+    private static final Game ANOTHER_GAME_WITH_HOME_TEAM = gameInProgress(
+        new TeamPair(HOME_TEAM_NAME, ANOTHER_TEAM_NAME)
+    );
+    private static final Game ANOTHER_GAME_WITH_AWAY_TEAM = gameInProgress(
+        new TeamPair(ANOTHER_TEAM_NAME, AWAY_TEAM_NAME)
+    );
+    private static final Game UNRELATED_GAME = gameInProgress(ANOTHER_TEAMS);
 
     private final GameStartRepositoryStub gameStartRepositoryStub = new GameStartRepositoryStub();
     private final GameStartUseCase gameStartUseCase = new GameStartUseCase(gameStartRepositoryStub);
@@ -101,8 +115,7 @@ class GameStartUseCaseTest {
 
     @Test
     void shouldRejectStartWhenSameGameIsAlreadyInProgress() {
-        Game sameGame = gameInProgress(TEAMS);
-        gameStartRepositoryStub.setGameInProgress(sameGame);
+        gameStartRepositoryStub.setGameInProgress(SAME_GAME);
 
         Throwable failure = catchThrowable(() -> gameStartUseCase.execute(TEAMS));
 
@@ -111,16 +124,14 @@ class GameStartUseCaseTest {
 
     @Test
     void shouldReportTeamsAndIdOfGameThatIsAlreadyInProgress() {
-        Game sameGame = gameInProgress(TEAMS);
-        GameId idOfSameGame = sameGame.getId();
-        gameStartRepositoryStub.setGameInProgress(sameGame);
+        gameStartRepositoryStub.setGameInProgress(SAME_GAME);
 
         GameAlreadyInProgressException exception = catchThrowableOfType(
             GameAlreadyInProgressException.class,
             () -> gameStartUseCase.execute(TEAMS)
         );
         boolean reportsTeams = exception.getTeams().equals(TEAMS);
-        boolean reportsGameId = exception.getGameId().equals(idOfSameGame);
+        boolean reportsGameId = exception.getGameId().equals(ID_OF_GAME_IN_PROGRESS);
         boolean reportsTeamsAndGameId = reportsTeams && reportsGameId;
 
         assertThat(reportsTeamsAndGameId).isTrue();
@@ -128,10 +139,7 @@ class GameStartUseCaseTest {
 
     @Test
     void shouldRejectStartWhenHomeTeamIsPlayingInAnotherGame() {
-        TeamName homeTeamName = TEAMS.homeTeam();
-        TeamPair teamsOfAnotherGame = new TeamPair(homeTeamName, ANOTHER_TEAM_NAME);
-        Game anotherGame = gameInProgress(teamsOfAnotherGame);
-        gameStartRepositoryStub.setGameInProgress(anotherGame);
+        gameStartRepositoryStub.setGameInProgress(ANOTHER_GAME_WITH_HOME_TEAM);
 
         Throwable failure = catchThrowable(() -> gameStartUseCase.execute(TEAMS));
 
@@ -140,18 +148,14 @@ class GameStartUseCaseTest {
 
     @Test
     void shouldReportHomeTeamAndIdOfAnotherGameWhereItIsPlaying() {
-        TeamName homeTeamName = TEAMS.homeTeam();
-        TeamPair teamsOfAnotherGame = new TeamPair(homeTeamName, ANOTHER_TEAM_NAME);
-        Game anotherGame = gameInProgress(teamsOfAnotherGame);
-        GameId idOfAnotherGame = anotherGame.getId();
-        gameStartRepositoryStub.setGameInProgress(anotherGame);
+        gameStartRepositoryStub.setGameInProgress(ANOTHER_GAME_WITH_HOME_TEAM);
 
         TeamAlreadyPlayingException exception = catchThrowableOfType(
             TeamAlreadyPlayingException.class,
             () -> gameStartUseCase.execute(TEAMS)
         );
-        boolean reportsTeamName = exception.getTeamName().equals(homeTeamName);
-        boolean reportsGameId = exception.getGameId().equals(idOfAnotherGame);
+        boolean reportsTeamName = exception.getTeamName().equals(HOME_TEAM_NAME);
+        boolean reportsGameId = exception.getGameId().equals(ID_OF_GAME_IN_PROGRESS);
         boolean reportsTeamNameAndGameId = reportsTeamName && reportsGameId;
 
         assertThat(reportsTeamNameAndGameId).isTrue();
@@ -159,10 +163,7 @@ class GameStartUseCaseTest {
 
     @Test
     void shouldRejectStartWhenAwayTeamIsPlayingInAnotherGame() {
-        TeamName awayTeamName = TEAMS.awayTeam();
-        TeamPair teamsOfAnotherGame = new TeamPair(ANOTHER_TEAM_NAME, awayTeamName);
-        Game anotherGame = gameInProgress(teamsOfAnotherGame);
-        gameStartRepositoryStub.setGameInProgress(anotherGame);
+        gameStartRepositoryStub.setGameInProgress(ANOTHER_GAME_WITH_AWAY_TEAM);
 
         Throwable failure = catchThrowable(() -> gameStartUseCase.execute(TEAMS));
 
@@ -171,18 +172,14 @@ class GameStartUseCaseTest {
 
     @Test
     void shouldReportAwayTeamAndIdOfAnotherGameWhereItIsPlaying() {
-        TeamName awayTeamName = TEAMS.awayTeam();
-        TeamPair teamsOfAnotherGame = new TeamPair(ANOTHER_TEAM_NAME, awayTeamName);
-        Game anotherGame = gameInProgress(teamsOfAnotherGame);
-        GameId idOfAnotherGame = anotherGame.getId();
-        gameStartRepositoryStub.setGameInProgress(anotherGame);
+        gameStartRepositoryStub.setGameInProgress(ANOTHER_GAME_WITH_AWAY_TEAM);
 
         TeamAlreadyPlayingException exception = catchThrowableOfType(
             TeamAlreadyPlayingException.class,
             () -> gameStartUseCase.execute(TEAMS)
         );
-        boolean reportsTeamName = exception.getTeamName().equals(awayTeamName);
-        boolean reportsGameId = exception.getGameId().equals(idOfAnotherGame);
+        boolean reportsTeamName = exception.getTeamName().equals(AWAY_TEAM_NAME);
+        boolean reportsGameId = exception.getGameId().equals(ID_OF_GAME_IN_PROGRESS);
         boolean reportsTeamNameAndGameId = reportsTeamName && reportsGameId;
 
         assertThat(reportsTeamNameAndGameId).isTrue();
@@ -190,9 +187,7 @@ class GameStartUseCaseTest {
 
     @Test
     void shouldFailWhenRepositoryReportsConflictWithUnrelatedGame() {
-        TeamPair unrelatedTeams = TeamPair.of("Spain", "Brazil");
-        Game unrelatedGame = gameInProgress(unrelatedTeams);
-        gameStartRepositoryStub.setGameWronglyReportedAsConflicting(unrelatedGame);
+        gameStartRepositoryStub.setGameWronglyReportedAsConflicting(UNRELATED_GAME);
 
         Throwable failure = catchThrowable(() -> gameStartUseCase.execute(TEAMS));
 
@@ -200,10 +195,9 @@ class GameStartUseCaseTest {
     }
 
     private static Game gameInProgress(TeamPair teams) {
-        GameId id = new GameId(3);
-        long sequenceNumber = 3;
+        long sequenceNumber = ID_OF_GAME_IN_PROGRESS.value();
         Score score = new Score(2, 1);
         int scoreRevision = 3;
-        return new Game(id, sequenceNumber, teams, score, scoreRevision);
+        return new Game(ID_OF_GAME_IN_PROGRESS, sequenceNumber, teams, score, scoreRevision);
     }
 }
