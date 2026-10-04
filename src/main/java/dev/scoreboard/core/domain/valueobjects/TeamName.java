@@ -14,14 +14,16 @@ public record TeamName(String value) {
     }
 
     private static void ensureIsNotEmpty(String value) {
-        if (value.isEmpty()) {
+        boolean empty = value.isEmpty();
+        if (empty) {
             throw new IllegalArgumentException("Team name must not be empty");
         }
     }
 
     private static void ensureHasNoWhitespaceAtTheEdges(String value) {
         String stripped = value.strip();
-        if (!value.equals(stripped)) {
+        boolean hasWhitespaceAtTheEdges = !value.equals(stripped);
+        if (hasWhitespaceAtTheEdges) {
             throw new IllegalArgumentException("Team name must not start or end with whitespace");
         }
     }
