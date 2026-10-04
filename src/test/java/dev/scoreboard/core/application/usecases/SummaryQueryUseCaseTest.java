@@ -67,6 +67,18 @@ class SummaryQueryUseCaseTest {
         assertThat(teamsInOrder).containsExactly(GERMANY_FRANCE, SPAIN_BRAZIL, MEXICO_CANADA);
     }
 
+    @Test
+    void shouldOrderGamesByTotalScoreThatExceedsIntegerRange() {
+        gamesInProgress(
+            game(MEXICO_CANADA, Integer.MAX_VALUE, Integer.MAX_VALUE),
+            game(SPAIN_BRAZIL, 1, 0)
+        );
+
+        List<TeamPair> teamsInOrder = teamsInSummary();
+
+        assertThat(teamsInOrder).containsExactly(MEXICO_CANADA, SPAIN_BRAZIL);
+    }
+
     private void gamesInProgress(Game... games) {
         List<Game> gamesInProgress = List.of(games);
         summaryQueryRepositoryStub.setGames(gamesInProgress);

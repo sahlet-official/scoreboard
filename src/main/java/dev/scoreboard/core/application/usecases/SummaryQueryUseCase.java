@@ -13,7 +13,7 @@ import java.util.List;
 
 public class SummaryQueryUseCase implements SummaryQueryPort {
     private static final Comparator<Game> BY_TOTAL_SCORE_HIGHEST_FIRST =
-        Comparator.comparingInt(SummaryQueryUseCase::calculateTotalScore).reversed();
+        Comparator.comparingLong(SummaryQueryUseCase::calculateTotalScore).reversed();
 
     private static final Comparator<Game> BY_MOST_RECENTLY_STARTED_FIRST =
         Comparator.comparingLong(Game::getSequenceNumber).reversed();
@@ -41,10 +41,10 @@ public class SummaryQueryUseCase implements SummaryQueryPort {
         return orderedGames;
     }
 
-    private static int calculateTotalScore(Game game) {
+    private static long calculateTotalScore(Game game) {
         Score score = game.getScore();
-        int homeScore = score.home();
-        int awayScore = score.away();
+        long homeScore = score.home();
+        long awayScore = score.away();
         return homeScore + awayScore;
     }
 
