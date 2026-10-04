@@ -15,15 +15,15 @@ import org.junit.jupiter.api.Test;
 class GameStartUseCaseTest {
     private static final TeamPair TEAMS = TeamPair.of("Mexico", "Canada");
 
-    private final GameStartRepositoryStub gameRepositoryStub = new GameStartRepositoryStub();
-    private final GameStartUseCase gameStartUseCase = new GameStartUseCase(gameRepositoryStub);
+    private final GameStartRepositoryStub gameStartRepositoryStub = new GameStartRepositoryStub();
+    private final GameStartUseCase gameStartUseCase = new GameStartUseCase(gameStartRepositoryStub);
 
     @Test
     void shouldAddGameWithZeroScoreToRepository() {
         Score zeroScore = new Score(0, 0);
 
         gameStartUseCase.execute(TEAMS);
-        NewGame addedGame = gameRepositoryStub.getAddedGame();
+        NewGame addedGame = gameStartRepositoryStub.getAddedGame();
         Score score = addedGame.score();
 
         assertThat(score).isEqualTo(zeroScore);
@@ -34,7 +34,7 @@ class GameStartUseCaseTest {
         int zeroRevision = 0;
 
         gameStartUseCase.execute(TEAMS);
-        NewGame addedGame = gameRepositoryStub.getAddedGame();
+        NewGame addedGame = gameStartRepositoryStub.getAddedGame();
         int scoreRevision = addedGame.scoreRevision();
 
         assertThat(scoreRevision).isEqualTo(zeroRevision);
@@ -43,7 +43,7 @@ class GameStartUseCaseTest {
     @Test
     void shouldAddGameWithGivenTeamsToRepository() {
         gameStartUseCase.execute(TEAMS);
-        NewGame addedGame = gameRepositoryStub.getAddedGame();
+        NewGame addedGame = gameStartRepositoryStub.getAddedGame();
         TeamPair teams = addedGame.teams();
 
         assertThat(teams).isEqualTo(TEAMS);
@@ -88,7 +88,7 @@ class GameStartUseCaseTest {
     @Test
     void shouldRejectStartWhenSameGameIsAlreadyInProgress() {
         Game sameGame = gameInProgress(TEAMS);
-        gameRepositoryStub.setGameInProgress(sameGame);
+        gameStartRepositoryStub.setGameInProgress(sameGame);
 
         Throwable failure = catchThrowable(() -> gameStartUseCase.execute(TEAMS));
 
