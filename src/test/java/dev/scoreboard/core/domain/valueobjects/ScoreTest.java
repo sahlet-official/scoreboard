@@ -3,6 +3,7 @@ package dev.scoreboard.core.domain.valueobjects;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.catchThrowable;
 
+import org.junit.jupiter.api.Test;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.ValueSource;
 
@@ -37,5 +38,17 @@ class ScoreTest {
         Score score = new Score(0, awayScore);
 
         assertThat(score.away()).isEqualTo(awayScore);
+    }
+
+    @Test
+    void shouldTreatSameScoresAsSameScore() {
+        int home = 2;
+        int away = 1;
+        Score first = new Score(home, away);
+        Score second = new Score(home, away);
+
+        boolean sameScore = first.equals(second);
+
+        assertThat(sameScore).isTrue();
     }
 }
