@@ -10,6 +10,7 @@ import dev.scoreboard.core.domain.valueobjects.GameId;
 import dev.scoreboard.core.domain.valueobjects.GameScore;
 import dev.scoreboard.core.domain.valueobjects.Score;
 import dev.scoreboard.core.domain.valueobjects.TeamPair;
+import java.util.Collection;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -58,6 +59,7 @@ public class InMemoryGameRepository implements GameRepository {
 
     @Override
     public List<Game> findAllGames() {
-        return List.of();
+        Collection<Game> allGames = games.values();
+        return List.copyOf(allGames);
     }
 }

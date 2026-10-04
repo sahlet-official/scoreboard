@@ -15,9 +15,12 @@ import org.junit.jupiter.api.Test;
 
 public abstract class GameRepositoryContractTest {
     private static final TeamPair MEXICO_CANADA = TeamPair.of("Mexico", "Canada");
+    private static final TeamPair SPAIN_BRAZIL = TeamPair.of("Spain", "Brazil");
     private static final Score SCORE = new Score(2, 1);
     private static final int SCORE_REVISION = 3;
+
     private static final NewGame NEW_GAME = new NewGame(MEXICO_CANADA, SCORE, SCORE_REVISION);
+    private static final NewGame ANOTHER_NEW_GAME = new NewGame(SPAIN_BRAZIL, SCORE, SCORE_REVISION);
 
     private GameRepository gameRepository;
 
@@ -56,5 +59,15 @@ public abstract class GameRepositoryContractTest {
         Optional<TeamPair> teamsOfFoundGame = foundGame.map(Game::getTeams);
 
         assertThat(teamsOfFoundGame).contains(MEXICO_CANADA);
+    }
+
+    @Test
+    void shouldListAllAddedGames() throws TeamsNotUniqueException {
+        gameRepository.addGameWithUniqueTeams(NEW_GAME);
+        gameRepository.addGameWithUniqueTeams(ANOTHER_NEW_GAME);
+
+        List<Game> games = gameRepository.findAllGames();
+
+        assertThat(games).extracting(Game::getTeams).containsExactlyInAnyOrder(MEXICO_CANADA, SPAIN_BRAZIL);
     }
 }
