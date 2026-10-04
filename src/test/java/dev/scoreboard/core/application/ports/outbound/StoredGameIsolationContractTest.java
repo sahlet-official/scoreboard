@@ -40,4 +40,17 @@ public interface StoredGameIsolationContractTest {
 
         assertThat(storedScore).contains(NEW_GAME.score());
     }
+
+    @Test
+    default void shouldKeepStoredScoreWhenGameFoundByTeamsIsChanged() throws TeamsNotUniqueException {
+        gameRepository().addGameWithUniqueTeams(NEW_GAME);
+        Optional<Game> foundGame = gameRepository().findGame(NEW_GAME.teams());
+        Game gameFoundByTeams = foundGame.orElseThrow();
+
+        gameFoundByTeams.updateScore(ANOTHER_SCORE, NEXT_SCORE_REVISION);
+        Optional<Game> gameFoundAgain = gameRepository().findGame(NEW_GAME.teams());
+        Optional<Score> storedScore = gameFoundAgain.map(Game::getScore);
+
+        assertThat(storedScore).contains(NEW_GAME.score());
+    }
 }
