@@ -1,6 +1,7 @@
 package dev.scoreboard.core.application.usecases;
 
 import dev.scoreboard.core.application.ports.inbound.GameStartPort;
+import dev.scoreboard.core.application.ports.inbound.exceptions.GameAlreadyInProgressException;
 import dev.scoreboard.core.application.ports.inbound.models.GameDetails;
 import dev.scoreboard.core.application.ports.outbound.GameRepository;
 import dev.scoreboard.core.application.ports.outbound.exceptions.TeamsNotUniqueException;
@@ -23,11 +24,14 @@ public class GameStartUseCase implements GameStartPort {
     @Override
     public GameDetails execute(TeamPair teams) {
         NewGame newGame = new NewGame(teams, INITIAL_SCORE, INITIAL_SCORE_REVISION);
+
         try {
             Game storedGame = gameRepository.addGameWithUniqueTeams(newGame);
             return detailsOf(storedGame);
-        } catch (TeamsNotUniqueException e) {
-            throw new UnsupportedOperationException("Not implemented yet", e);
+        } catch (TeamsNotUniqueException exception) {
+            Game conflictingGame = exception.getConflictingGame();
+            GameId conflictingGameId = conflictingGame.getId();
+            throw new GameAlreadyInProgressException(teams, conflictingGameId);
         }
     }
 

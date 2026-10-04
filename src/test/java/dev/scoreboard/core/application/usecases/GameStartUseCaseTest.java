@@ -1,9 +1,12 @@
 package dev.scoreboard.core.application.usecases;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.catchThrowable;
 
+import dev.scoreboard.core.application.ports.inbound.exceptions.GameAlreadyInProgressException;
 import dev.scoreboard.core.application.ports.inbound.models.GameDetails;
 import dev.scoreboard.core.application.ports.outbound.models.NewGame;
+import dev.scoreboard.core.domain.entities.Game;
 import dev.scoreboard.core.domain.valueobjects.GameId;
 import dev.scoreboard.core.domain.valueobjects.Score;
 import dev.scoreboard.core.domain.valueobjects.TeamPair;
@@ -12,7 +15,7 @@ import org.junit.jupiter.api.Test;
 class GameStartUseCaseTest {
     private static final TeamPair TEAMS = TeamPair.of("Mexico", "Canada");
 
-    private final GameRepositoryStub gameRepositoryStub = new GameRepositoryStub();
+    private final GameStartRepositoryStub gameRepositoryStub = new GameStartRepositoryStub();
     private final GameStartUseCase gameStartUseCase = new GameStartUseCase(gameRepositoryStub);
 
     @Test
@@ -51,7 +54,7 @@ class GameStartUseCaseTest {
         GameDetails game = gameStartUseCase.execute(TEAMS);
         GameId id = game.id();
 
-        assertThat(id).isEqualTo(GameRepositoryStub.ASSIGNED_ID);
+        assertThat(id).isEqualTo(GameStartRepositoryStub.ASSIGNED_ID);
     }
 
     @Test
@@ -80,5 +83,23 @@ class GameStartUseCaseTest {
         int scoreRevision = game.scoreRevision();
 
         assertThat(scoreRevision).isEqualTo(zeroRevision);
+    }
+
+    @Test
+    void shouldRejectStartWhenSameGameIsAlreadyInProgress() {
+        Game sameGame = gameInProgress(TEAMS);
+        gameRepositoryStub.setGameInProgress(sameGame);
+
+        Throwable failure = catchThrowable(() -> gameStartUseCase.execute(TEAMS));
+
+        assertThat(failure).isInstanceOf(GameAlreadyInProgressException.class);
+    }
+
+    private static Game gameInProgress(TeamPair teams) {
+        GameId id = new GameId(3);
+        long sequenceNumber = 3;
+        Score score = new Score(2, 1);
+        int scoreRevision = 3;
+        return new Game(id, sequenceNumber, teams, score, scoreRevision);
     }
 }
