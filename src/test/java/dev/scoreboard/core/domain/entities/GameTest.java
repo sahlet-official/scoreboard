@@ -90,4 +90,15 @@ class GameTest {
 
         assertThat(currentScore).isEqualTo(newScore);
     }
+
+    @Test
+    void shouldRejectMissingScoreWhenScoreIsUpdated() {
+        Game game = new Game(ID, SEQUENCE_NUMBER, TEAMS, SCORE, SCORE_REVISION);
+        Score missingScore = null;
+        int newRevision = 1;
+
+        Throwable failure = catchThrowable(() -> game.updateScore(missingScore, newRevision));
+
+        assertThat(failure).isInstanceOf(NullPointerException.class);
+    }
 }
