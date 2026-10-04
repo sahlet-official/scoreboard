@@ -62,6 +62,15 @@ public abstract class GameRepositoryContractTest {
     }
 
     @Test
+    void shouldFindNothingByIdOfGameThatWasNotAdded() {
+        GameId unknownId = new GameId(404);
+
+        Optional<Game> foundGame = gameRepository.findGame(unknownId);
+
+        assertThat(foundGame).isEmpty();
+    }
+
+    @Test
     void shouldFindAddedGameByTeams() throws TeamsNotUniqueException {
         Game addedGame = gameRepository.addGameWithUniqueTeams(NEW_GAME);
         GameId id = addedGame.getId();
