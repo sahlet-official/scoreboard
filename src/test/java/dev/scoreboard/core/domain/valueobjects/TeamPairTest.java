@@ -25,4 +25,14 @@ class TeamPairTest {
 
         assertThat(failure).isInstanceOf(NullPointerException.class);
     }
+
+    @Test
+    void shouldRejectSameTeamOnBothSides() {
+        TeamName mexico = new TeamName("Mexico");
+        TeamName sameTeam = new TeamName("Mexico");
+
+        Throwable failure = catchThrowable(() -> new TeamPair(mexico, sameTeam));
+
+        assertThat(failure).isInstanceOf(IllegalArgumentException.class);
+    }
 }
