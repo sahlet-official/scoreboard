@@ -15,4 +15,14 @@ class TeamPairTest {
 
         assertThat(failure).isInstanceOf(NullPointerException.class);
     }
+
+    @Test
+    void shouldRejectMissingAwayTeam() {
+        TeamName mexico = new TeamName("Mexico");
+        TeamName missingTeam = null;
+
+        Throwable failure = catchThrowable(() -> new TeamPair(mexico, missingTeam));
+
+        assertThat(failure).isInstanceOf(NullPointerException.class);
+    }
 }
