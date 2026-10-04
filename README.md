@@ -44,6 +44,12 @@ Windows:
 
 7. **The client needs to read a game.** The task does not list this operation. The client needs to find out whether a game between given teams is in progress, and what its score and score revision are. For this a game can be read by ID and by team pair.
 
+8. **Writes are very rare, reads are very frequent.**
+
+9. **For writes consistency matters more than availability, for reads availability matters more than freshness.**
+   - Writes: on a failure it is better to reject writes for a while than to accept diverging data. A wrong score is not acceptable: it means lost trust in the data, money lost on bets and viewers reacting to false information, and there are a lot of viewers.
+   - Reads: always answer, may lag behind, but never show a wrong score.
+
 ## 3. Decisions
 
 1. **A game has an ID.** The scoreboard assigns it when the game starts. Updating the score and finishing a game take the ID, not the team pair (see trade-off 2).
@@ -61,6 +67,10 @@ Windows:
 6. **The summary returns all games, without pagination.** There are few games (see assumption 4). An empty scoreboard gives an empty list.
 
 7. **The interface is split into a reader and a writer.** This prepares for the time when instances for reading and for writing are created separately. For now the split is useful only when the scoreboard is passed to code that needs just one of the interfaces.
+
+8. **Every repository operation is atomic, the port has no transactions.** Atomicity is the contract of the port: the in-memory implementation provides it within a process, an adapter to a shared database provides it across servers. The business logic has no locks and knows nothing about threads and servers; the repository is the only point of coordination (see trade-off 5).
+
+9. **The storage assigns the game ID on insert.** The same number defines the "most recently added" order (see trade-off 6).
 
 ## 4. Trade-offs
 
@@ -83,3 +93,27 @@ Windows:
    - Why: less code, which matches the task's requirement for a simple solution.
    - Alternative: duplicate in a separate API layer all the contracts the client depends on. The client would then not depend on internal packages.
    - Why not: a second set of models and exceptions makes the solution noticeably bigger.
+
+5. **The rule "a team plays in only one game" is guaranteed by the repository.**
+   - Why: the contract is simple, and any real storage can fulfil it without making the business layer more complex (a unique constraint).
+   - Alternative: transactions in the port, the rule entirely in the business logic.
+   - Why not: a lot of code and tests, a higher chance of mistakes, and it goes against the requirement for a simple solution. Besides, in a real database uniqueness would still be enforced by a constraint in the storage, so transactions do not take the rule out of the storage.
+
+6. **Writes go through a single point, and it also assigns the IDs.**
+   - Why: the order of games is exact, the moment a game is "added to the system" is the moment of insert. Unique teams and no score conflicts come without extra mechanisms. Real databases fit this well: a single leader with replicas, or a quorum with consensus (Raft).
+   - Alternative: several write nodes, the ID is generated on the node (Snowflake, UUIDv7).
+   - Why not: the order becomes approximate (it depends on clocks), duplicate games and score conflicts appear and have to be resolved. The gain, availability and scale of writes, is not needed with our low write load.
+
+## 5. Future evolution
+
+1. **Several instances with a shared storage.** This needs an adapter to a database; atomicity of operations is then provided by the database, the port does not change.
+
+2. **High availability of writes.** A storage with consensus (Raft) instead of a single leader with a replica; the port does not change.
+
+3. **Transactions at the use case level.** Needed if the simple repository contract is not enough, for example when several games have to be changed atomically.
+
+4. **Separate instances for reading and writing.** Reads go to replicas and a cache, writes go to the leader. The reader and writer interfaces are already split for this (see decision 7).
+
+5. **Strict rules for team names.** For example case-insensitive comparison or a registry of teams (see trade-off 1).
+
+6. **A separate API layer.** Its own models and exceptions; the client no longer depends on internal packages (see trade-off 4).
