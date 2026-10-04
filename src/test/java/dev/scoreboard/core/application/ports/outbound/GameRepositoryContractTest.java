@@ -49,9 +49,9 @@ public abstract class GameRepositoryContractTest {
     void shouldReturnAddedGameWithGivenTeamsScoreAndScoreRevision() throws TeamsNotUniqueException {
         Game addedGame = gameRepository.addGameWithUniqueTeams(NEW_GAME);
 
-        boolean keepsTeams = addedGame.getTeams().equals(MEXICO_CANADA);
-        boolean keepsScore = addedGame.getScore().equals(SCORE);
-        boolean keepsScoreRevision = addedGame.getScoreRevision() == SCORE_REVISION;
+        boolean keepsTeams = addedGame.getTeams().equals(NEW_GAME.teams());
+        boolean keepsScore = addedGame.getScore().equals(NEW_GAME.score());
+        boolean keepsScoreRevision = addedGame.getScoreRevision() == NEW_GAME.scoreRevision();
         boolean keepsGivenValues = keepsTeams && keepsScore && keepsScoreRevision;
 
         assertThat(keepsGivenValues).isTrue();
@@ -97,12 +97,11 @@ public abstract class GameRepositoryContractTest {
     @Test
     void shouldNotStoreRejectedGame() throws TeamsNotUniqueException {
         gameRepository.addGameWithUniqueTeams(NEW_GAME);
-        TeamPair teamsOfAddedGame = NEW_GAME.teams();
         catchThrowable(() -> gameRepository.addGameWithUniqueTeams(NEW_GAME_WITH_SAME_AWAY_TEAM));
 
         List<Game> games = gameRepository.findAllGames();
 
-        assertThat(games).extracting(Game::getTeams).containsExactly(teamsOfAddedGame);
+        assertThat(games).extracting(Game::getTeams).containsExactly(NEW_GAME.teams());
     }
 
     @Test
@@ -113,7 +112,7 @@ public abstract class GameRepositoryContractTest {
         Optional<Game> foundGame = gameRepository.findGame(id);
         Optional<TeamPair> teamsOfFoundGame = foundGame.map(Game::getTeams);
 
-        assertThat(teamsOfFoundGame).contains(MEXICO_CANADA);
+        assertThat(teamsOfFoundGame).contains(NEW_GAME.teams());
     }
 
     @Test
@@ -130,7 +129,7 @@ public abstract class GameRepositoryContractTest {
         Game addedGame = gameRepository.addGameWithUniqueTeams(NEW_GAME);
         GameId id = addedGame.getId();
 
-        Optional<Game> foundGame = gameRepository.findGame(MEXICO_CANADA);
+        Optional<Game> foundGame = gameRepository.findGame(NEW_GAME.teams());
         Optional<GameId> idOfFoundGame = foundGame.map(Game::getId);
 
         assertThat(idOfFoundGame).contains(id);
@@ -140,7 +139,7 @@ public abstract class GameRepositoryContractTest {
     void shouldFindNothingByTeamsOfGameThatWasNotAdded() throws TeamsNotUniqueException {
         gameRepository.addGameWithUniqueTeams(NEW_GAME);
 
-        Optional<Game> foundGame = gameRepository.findGame(SPAIN_BRAZIL);
+        Optional<Game> foundGame = gameRepository.findGame(ANOTHER_NEW_GAME.teams());
 
         assertThat(foundGame).isEmpty();
     }
@@ -158,7 +157,7 @@ public abstract class GameRepositoryContractTest {
     void shouldFindNothingByTeamsThatShareOnlyHomeTeamWithAddedGame() throws TeamsNotUniqueException {
         gameRepository.addGameWithUniqueTeams(NEW_GAME);
 
-        Optional<Game> foundGame = gameRepository.findGame(MEXICO_BRAZIL);
+        Optional<Game> foundGame = gameRepository.findGame(NEW_GAME_WITH_SAME_HOME_TEAM.teams());
 
         assertThat(foundGame).isEmpty();
     }
@@ -167,7 +166,7 @@ public abstract class GameRepositoryContractTest {
     void shouldFindNothingByTeamsThatShareOnlyAwayTeamWithAddedGame() throws TeamsNotUniqueException {
         gameRepository.addGameWithUniqueTeams(NEW_GAME);
 
-        Optional<Game> foundGame = gameRepository.findGame(SPAIN_CANADA);
+        Optional<Game> foundGame = gameRepository.findGame(NEW_GAME_WITH_SAME_AWAY_TEAM.teams());
 
         assertThat(foundGame).isEmpty();
     }
@@ -179,6 +178,7 @@ public abstract class GameRepositoryContractTest {
 
         List<Game> games = gameRepository.findAllGames();
 
-        assertThat(games).extracting(Game::getTeams).containsExactlyInAnyOrder(MEXICO_CANADA, SPAIN_BRAZIL);
+        assertThat(games).extracting(Game::getTeams)
+            .containsExactlyInAnyOrder(NEW_GAME.teams(), ANOTHER_NEW_GAME.teams());
     }
 }
