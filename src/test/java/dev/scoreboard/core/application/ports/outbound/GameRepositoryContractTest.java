@@ -82,6 +82,15 @@ public abstract class GameRepositoryContractTest {
     }
 
     @Test
+    void shouldFindNothingByTeamsOfGameThatWasNotAdded() throws TeamsNotUniqueException {
+        gameRepository.addGameWithUniqueTeams(NEW_GAME);
+
+        Optional<Game> foundGame = gameRepository.findGame(SPAIN_BRAZIL);
+
+        assertThat(foundGame).isEmpty();
+    }
+
+    @Test
     void shouldListAllAddedGames() throws TeamsNotUniqueException {
         gameRepository.addGameWithUniqueTeams(NEW_GAME);
         gameRepository.addGameWithUniqueTeams(ANOTHER_NEW_GAME);
