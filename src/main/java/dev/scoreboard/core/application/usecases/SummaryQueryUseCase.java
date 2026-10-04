@@ -15,6 +15,12 @@ public class SummaryQueryUseCase implements SummaryQueryPort {
     private static final Comparator<Game> BY_TOTAL_SCORE_HIGHEST_FIRST =
         Comparator.comparingInt(SummaryQueryUseCase::calculateTotalScore).reversed();
 
+    private static final Comparator<Game> BY_MOST_RECENTLY_STARTED_FIRST =
+        Comparator.comparingLong(Game::getSequenceNumber).reversed();
+
+    private static final Comparator<Game> SUMMARY_ORDER =
+        BY_TOTAL_SCORE_HIGHEST_FIRST.thenComparing(BY_MOST_RECENTLY_STARTED_FIRST);
+
     private final GameRepository gameRepository;
 
     public SummaryQueryUseCase(GameRepository gameRepository) {
@@ -31,7 +37,7 @@ public class SummaryQueryUseCase implements SummaryQueryPort {
 
     private static List<Game> orderGamesForSummary(List<Game> games) {
         List<Game> orderedGames = new ArrayList<>(games);
-        orderedGames.sort(BY_TOTAL_SCORE_HIGHEST_FIRST);
+        orderedGames.sort(SUMMARY_ORDER);
         return orderedGames;
     }
 

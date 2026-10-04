@@ -54,6 +54,19 @@ class SummaryQueryUseCaseTest {
         assertThat(teamsInOrder).containsExactly(SPAIN_BRAZIL, GERMANY_FRANCE, MEXICO_CANADA);
     }
 
+    @Test
+    void shouldOrderGamesWithSameTotalScoreByMostRecentlyStartedFirst() {
+        gamesInProgress(
+            game(MEXICO_CANADA, 2, 2),
+            game(SPAIN_BRAZIL, 4, 0),
+            game(GERMANY_FRANCE, 1, 3)
+        );
+
+        List<TeamPair> teamsInOrder = teamsInSummary();
+
+        assertThat(teamsInOrder).containsExactly(GERMANY_FRANCE, SPAIN_BRAZIL, MEXICO_CANADA);
+    }
+
     private void gamesInProgress(Game... games) {
         List<Game> gamesInProgress = List.of(games);
         summaryQueryRepositoryStub.setGames(gamesInProgress);
