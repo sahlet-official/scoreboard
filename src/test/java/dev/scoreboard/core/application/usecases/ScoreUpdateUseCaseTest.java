@@ -183,4 +183,13 @@ class ScoreUpdateUseCaseTest {
 
         assertThat(reportsRevisionAndScore).isTrue();
     }
+
+    @Test
+    void shouldFailWhenRepositoryReportsRevisionConflictForNextRevision() {
+        scoreUpdateRepositoryStub.setScoreRevisionConflictGame(GAME_IN_PROGRESS);
+
+        Throwable failure = catchThrowable(() -> scoreUpdateUseCase.execute(NEW_SCORE));
+
+        assertThat(failure).isInstanceOf(IllegalStateException.class);
+    }
 }

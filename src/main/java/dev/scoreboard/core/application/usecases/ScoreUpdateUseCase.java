@@ -53,6 +53,11 @@ public class ScoreUpdateUseCase implements ScoreUpdatePort {
             throw new StaleScoreRevisionException(receivedRevision, currentScore);
         }
 
+        boolean revisionIsNext = receivedRevision - 1 == currentRevision;
+        if (revisionIsNext) {
+            throw new IllegalStateException("Score revision conflict reported for the next revision");
+        }
+
         throw new ScoreRevisionGapException(receivedRevision, currentScore);
     }
 

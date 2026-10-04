@@ -13,10 +13,15 @@ import java.util.Optional;
 
 public class ScoreUpdateRepositoryStub implements GameRepository {
     private Game gameInProgress;
+    private Game scoreRevisionConflictGame;
     private GameScore updatedScore;
 
     public void setGameInProgress(Game gameInProgress) {
         this.gameInProgress = gameInProgress;
+    }
+
+    public void setScoreRevisionConflictGame(Game scoreRevisionConflictGame) {
+        this.scoreRevisionConflictGame = scoreRevisionConflictGame;
     }
 
     public GameScore getUpdatedScore() {
@@ -26,6 +31,10 @@ public class ScoreUpdateRepositoryStub implements GameRepository {
     @Override
     public void updateScoreIfNextRevision(GameScore score)
             throws GameMissingException, ScoreRevisionConflictException {
+        if (scoreRevisionConflictGame != null) {
+            throw new ScoreRevisionConflictException(scoreRevisionConflictGame);
+        }
+
         if (gameInProgress == null) {
             GameId gameId = score.gameId();
             throw new GameMissingException(gameId);
