@@ -2,6 +2,7 @@ package dev.scoreboard.core.application.usecases;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.catchThrowable;
+import static org.assertj.core.api.Assertions.catchThrowableOfType;
 
 import dev.scoreboard.core.application.ports.inbound.exceptions.GameAlreadyInProgressException;
 import dev.scoreboard.core.application.ports.inbound.models.GameDetails;
@@ -93,6 +94,23 @@ class GameStartUseCaseTest {
         Throwable failure = catchThrowable(() -> gameStartUseCase.execute(TEAMS));
 
         assertThat(failure).isInstanceOf(GameAlreadyInProgressException.class);
+    }
+
+    @Test
+    void shouldReportTeamsAndIdOfGameThatIsAlreadyInProgress() {
+        Game sameGame = gameInProgress(TEAMS);
+        GameId idOfSameGame = sameGame.getId();
+        gameStartRepositoryStub.setGameInProgress(sameGame);
+
+        GameAlreadyInProgressException exception = catchThrowableOfType(
+            GameAlreadyInProgressException.class,
+            () -> gameStartUseCase.execute(TEAMS)
+        );
+        boolean reportsTeams = exception.getTeams().equals(TEAMS);
+        boolean reportsGameId = exception.getGameId().equals(idOfSameGame);
+        boolean reportsTeamsAndGameId = reportsTeams && reportsGameId;
+
+        assertThat(reportsTeamsAndGameId).isTrue();
     }
 
     private static Game gameInProgress(TeamPair teams) {
