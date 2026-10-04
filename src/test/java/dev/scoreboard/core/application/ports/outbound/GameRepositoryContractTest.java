@@ -95,6 +95,17 @@ public abstract class GameRepositoryContractTest {
     }
 
     @Test
+    void shouldNotStoreRejectedGame() throws TeamsNotUniqueException {
+        gameRepository.addGameWithUniqueTeams(NEW_GAME);
+        TeamPair teamsOfAddedGame = NEW_GAME.teams();
+        catchThrowable(() -> gameRepository.addGameWithUniqueTeams(NEW_GAME_WITH_SAME_AWAY_TEAM));
+
+        List<Game> games = gameRepository.findAllGames();
+
+        assertThat(games).extracting(Game::getTeams).containsExactly(teamsOfAddedGame);
+    }
+
+    @Test
     void shouldFindAddedGameById() throws TeamsNotUniqueException {
         Game addedGame = gameRepository.addGameWithUniqueTeams(NEW_GAME);
         GameId id = addedGame.getId();
