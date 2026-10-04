@@ -5,6 +5,7 @@ import static org.assertj.core.api.Assertions.catchThrowable;
 import static org.assertj.core.api.Assertions.catchThrowableOfType;
 
 import dev.scoreboard.core.application.ports.inbound.exceptions.GameNotFoundException;
+import dev.scoreboard.core.application.ports.inbound.exceptions.StaleScoreRevisionException;
 import dev.scoreboard.core.application.ports.inbound.models.UpdateScoreResult;
 import dev.scoreboard.core.application.usecases.stubs.ScoreUpdateRepositoryStub;
 import dev.scoreboard.core.domain.entities.Game;
@@ -29,6 +30,9 @@ class ScoreUpdateUseCaseTest {
     private static final int NEXT_REVISION = CURRENT_REVISION + 1;
     private static final GameScore NEW_SCORE = new GameScore(GAME_ID, new Score(1, 0), NEXT_REVISION);
     private static final GameScore REPEATED_SCORE = new GameScore(GAME_ID, CURRENT_SCORE, CURRENT_REVISION);
+    private static final GameScore DIFFERENT_SCORE_WITH_CURRENT_REVISION = new GameScore(
+        GAME_ID, new Score(1, 0), CURRENT_REVISION
+    );
 
     private final ScoreUpdateRepositoryStub scoreUpdateRepositoryStub = new ScoreUpdateRepositoryStub();
     private final ScoreUpdateUseCase scoreUpdateUseCase = new ScoreUpdateUseCase(scoreUpdateRepositoryStub);
@@ -86,5 +90,16 @@ class ScoreUpdateUseCaseTest {
         UpdateScoreResult result = scoreUpdateUseCase.execute(REPEATED_SCORE);
 
         assertThat(result).isEqualTo(UpdateScoreResult.UNCHANGED);
+    }
+
+    @Test
+    void shouldRejectDifferentScoreSentWithCurrentRevision() {
+        scoreUpdateRepositoryStub.setGameInProgress(GAME_IN_PROGRESS);
+
+        Throwable failure = catchThrowable(
+            () -> scoreUpdateUseCase.execute(DIFFERENT_SCORE_WITH_CURRENT_REVISION)
+        );
+
+        assertThat(failure).isInstanceOf(StaleScoreRevisionException.class);
     }
 }
