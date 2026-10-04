@@ -22,7 +22,7 @@ public class ScoreUpdateUseCase implements ScoreUpdatePort {
 
         try {
             gameRepository.updateScoreIfNextRevision(score);
-            return UpdateScoreResult.UNCHANGED;
+            return UpdateScoreResult.UPDATED;
 
         } catch (GameMissingException exception) {
             GameId gameId = exception.getGameId();
