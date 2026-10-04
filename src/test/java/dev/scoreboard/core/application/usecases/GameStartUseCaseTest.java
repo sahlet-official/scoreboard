@@ -148,6 +148,18 @@ class GameStartUseCaseTest {
         assertThat(reportsTeamNameAndGameId).isTrue();
     }
 
+    @Test
+    void shouldRejectStartWhenAwayTeamIsPlayingInAnotherGame() {
+        TeamName awayTeamName = TEAMS.awayTeam();
+        TeamPair teamsOfAnotherGame = new TeamPair(ANOTHER_TEAM_NAME, awayTeamName);
+        Game anotherGame = gameInProgress(teamsOfAnotherGame);
+        gameStartRepositoryStub.setGameInProgress(anotherGame);
+
+        Throwable failure = catchThrowable(() -> gameStartUseCase.execute(TEAMS));
+
+        assertThat(failure).isInstanceOf(TeamAlreadyPlayingException.class);
+    }
+
     private static Game gameInProgress(TeamPair teams) {
         GameId id = new GameId(3);
         long sequenceNumber = 3;
