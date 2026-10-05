@@ -27,7 +27,7 @@ public class InMemoryGameRepository implements GameRepository {
     private long nextId = 1;
 
     @Override
-    public Game addGameWithUniqueTeams(NewGame game) throws TeamsNotUniqueException {
+    public synchronized Game addGameWithUniqueTeams(NewGame game) throws TeamsNotUniqueException {
         TeamPair teams = game.teams();
         TeamName homeTeam = teams.homeTeam();
         TeamName awayTeam = teams.awayTeam();
