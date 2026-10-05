@@ -8,6 +8,7 @@ import dev.scoreboard.core.application.ports.outbound.exceptions.GameMissingExce
 import dev.scoreboard.core.application.ports.outbound.exceptions.TeamsNotUniqueException;
 import dev.scoreboard.core.domain.entities.Game;
 import dev.scoreboard.core.domain.valueobjects.GameId;
+import java.util.List;
 import java.util.Optional;
 import org.junit.jupiter.api.Test;
 
@@ -47,6 +48,16 @@ public interface GameRemovalContractTest {
         Optional<Game> foundGame = gameRepository().findGame(NEW_GAME.teams());
 
         assertThat(foundGame).isEmpty();
+    }
+
+    @Test
+    default void shouldNotListRemovedGame() {
+        GameId id = addNewGame();
+
+        tryToRemoveGame(id);
+        List<Game> games = gameRepository().findAllGames();
+
+        assertThat(games).isEmpty();
     }
 
     @Test
