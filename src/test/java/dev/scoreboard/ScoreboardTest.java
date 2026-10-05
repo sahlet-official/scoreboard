@@ -68,6 +68,17 @@ public interface ScoreboardTest {
         assertThat(scoreOfGame).isEqualTo(SCORE);
     }
 
+    @Test
+    default void shouldNotShowFinishedGameInSummary() {
+        GameDetails game = scoreboard().startGame(MEXICO_CANADA);
+        GameId id = game.id();
+
+        scoreboard().finishGame(id);
+        List<TeamPair> teamsInSummary = findTeamsInSummary();
+
+        assertThat(teamsInSummary).isEmpty();
+    }
+
     private void updateScore(GameDetails game, Score score) {
         GameId id = game.id();
         int nextScoreRevision = game.scoreRevision() + 1;
