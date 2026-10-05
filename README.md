@@ -61,7 +61,7 @@ scoreboard.finishGame(game.id());
 - **Score revision.** A game starts with the score 0 - 0 and the revision 0. Every update carries a revision that is one more than the current one.
 - **Reading a game.** `getGame(id)` and `getGame(teams)` return the ID, the teams, the current score and the revision.
 - **Summary.** The list of games in progress (teams and score) in the order required by the task.
-- **Rejections.** Unchecked exceptions that extend `ScoreboardException`: `GameAlreadyInProgressException`, `TeamAlreadyPlayingException`, `GameNotFoundException`, `StaleScoreRevisionException`, `ScoreRevisionGapException`.
+- **Rejections.** Unchecked exceptions that extend `ScoreboardException`: `GameAlreadyInProgressException`, `TeamAlreadyPlayingException`, `GameNotFoundException`, `ScoreRevisionStaleException`, `ScoreRevisionGapException`.
 - **Your own storage.** `ScoreboardFactory.createScoreboard(gameRepository)` creates a scoreboard with any implementation of `GameRepository`.
 
 ## 3. Assumptions
@@ -165,6 +165,6 @@ The solution was written with TDD: a test first, then the minimal code for it.
 - **Value objects and the entity.** Creation rules and stored values.
 - **Use cases.** Each one separately, with a hand-written stub of the repository.
 - **Repository contract.** The test set `GameRepositoryContractTest` that every implementation of `GameRepository` has to pass: adding and finding games, updating the score, removing games, stored data staying independent of returned objects, concurrent access from many threads.
-- **The scoreboard as a whole.** Also written as a contract test, `ScoreboardTest`.
+- **Scoreboard integration tests.** Also written as a contract test, `ScoreboardTest`.
 
 The concurrency tests are probabilistic: 32 threads, 50 repetitions of each test.
