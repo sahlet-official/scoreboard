@@ -60,7 +60,7 @@ public class InMemoryGameRepository implements GameRepository {
     }
 
     @Override
-    public void updateScoreIfNextRevision(GameScore gameScore)
+    public synchronized void updateScoreIfNextRevision(GameScore gameScore)
             throws GameMissingException, ScoreRevisionConflictException {
         GameId gameId = gameScore.gameId();
         StoredGame storedGame = storedGames.get(gameId);

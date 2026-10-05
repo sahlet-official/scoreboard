@@ -4,7 +4,10 @@ import static dev.scoreboard.core.application.ports.outbound.gamerepository.Game
 import static org.assertj.core.api.Assertions.assertThat;
 
 import dev.scoreboard.core.application.ports.outbound.GameRepository;
+import dev.scoreboard.core.application.ports.outbound.exceptions.TeamsNotUniqueException;
 import dev.scoreboard.core.domain.entities.Game;
+import dev.scoreboard.core.domain.valueobjects.GameId;
+import dev.scoreboard.core.domain.valueobjects.GameScore;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.concurrent.Callable;
@@ -44,6 +47,26 @@ public interface ConcurrentAccessContractTest {
         List<Game> storedGames = gameRepository().findAllGames();
 
         assertThat(storedGames).hasSize(1);
+    }
+
+    @RepeatedTest(REPETITIONS)
+    default void shouldAcceptOnlyOneOfScoresWithSameRevisionSentAtTheSameTime() {
+        GameId id = addNewGame();
+        GameScore scoreWithNextRevision = new GameScore(id, ANOTHER_SCORE, NEXT_SCORE_REVISION);
+        ThrowingCallable scoreUpdate = () -> gameRepository().updateScoreIfNextRevision(scoreWithNextRevision);
+
+        int acceptedScores = countSuccessfulAttempts(scoreUpdate);
+
+        assertThat(acceptedScores).isEqualTo(1);
+    }
+
+    private GameId addNewGame() {
+        try {
+            Game addedGame = gameRepository().addGameWithUniqueTeams(NEW_GAME);
+            return addedGame.getId();
+        } catch (TeamsNotUniqueException exception) {
+            throw new AssertionError("New game was rejected", exception);
+        }
     }
 
     private static int countSuccessfulAttempts(ThrowingCallable... attempts) {
