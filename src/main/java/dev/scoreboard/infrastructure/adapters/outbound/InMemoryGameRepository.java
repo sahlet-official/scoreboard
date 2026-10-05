@@ -89,7 +89,13 @@ public class InMemoryGameRepository implements GameRepository {
             throw new GameMissingException(id);
         }
 
+        TeamPair teams = storedGame.teams();
+        TeamName homeTeam = teams.homeTeam();
+        TeamName awayTeam = teams.awayTeam();
+
         storedGames.remove(id);
+        gameIdsByTeamName.remove(homeTeam);
+        gameIdsByTeamName.remove(awayTeam);
     }
 
     @Override
