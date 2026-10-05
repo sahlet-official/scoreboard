@@ -22,7 +22,8 @@ import java.util.Optional;
 /**
  * All games are kept in an immutable snapshot.
  * A write builds a new snapshot under the write lock and replaces the current one.
- * A read takes the current snapshot and never waits for a write.
+ * Reads are non-blocking: a read takes the current snapshot without a lock,
+ * so it does not wait for a write and does not hold up writes or other reads.
  */
 public class InMemoryGameRepository implements GameRepository {
     private record StoredGame(

@@ -72,6 +72,8 @@ Windows:
 
 9. **The storage assigns the game ID on insert.** The same number defines the "most recently added" order (see trade-off 6).
 
+10. **Reads in the in-memory repository are non-blocking.** A read does not wait for a write and does not hold up writes or other reads. All games are kept in an immutable snapshot. Writes go one at a time: a write builds a new snapshot and replaces the current one. A read takes the current snapshot without a lock and sees a consistent state. This was chosen because there are far more reads than writes (see assumption 8). The cost: every write copies the state; with few games (see assumption 4) this is not noticeable.
+
 ## 4. Trade-offs
 
 1. **Team names are not strictly validated.** The client is responsible for correct and consistent spelling.
