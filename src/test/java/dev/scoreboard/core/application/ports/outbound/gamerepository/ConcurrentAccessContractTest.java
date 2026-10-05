@@ -60,6 +60,16 @@ public interface ConcurrentAccessContractTest {
         assertThat(acceptedScores).isEqualTo(1);
     }
 
+    @RepeatedTest(REPETITIONS)
+    default void shouldRemoveGameOnlyOnceWhenItIsRemovedAtTheSameTime() {
+        GameId id = addNewGame();
+        ThrowingCallable removal = () -> gameRepository().removeGame(id);
+
+        int successfulRemovals = countSuccessfulAttempts(removal);
+
+        assertThat(successfulRemovals).isEqualTo(1);
+    }
+
     private GameId addNewGame() {
         try {
             Game addedGame = gameRepository().addGameWithUniqueTeams(NEW_GAME);
