@@ -89,7 +89,7 @@ public class InMemoryGameRepository implements GameRepository {
             throw new GameMissingException(id);
         }
 
-        throw new UnsupportedOperationException("Not implemented yet");
+        storedGames.remove(id);
     }
 
     @Override
