@@ -2,8 +2,10 @@ package dev.scoreboard;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
+import dev.scoreboard.core.application.ports.inbound.models.GameDetails;
 import dev.scoreboard.core.application.ports.inbound.models.GameSummary;
 import dev.scoreboard.core.application.ports.inbound.models.Summary;
+import dev.scoreboard.core.domain.valueobjects.GameId;
 import dev.scoreboard.core.domain.valueobjects.TeamPair;
 import java.util.ArrayList;
 import java.util.List;
@@ -29,6 +31,17 @@ public interface ScoreboardTest {
         List<TeamPair> teamsInSummary = findTeamsInSummary();
 
         assertThat(teamsInSummary).containsExactly(MEXICO_CANADA);
+    }
+
+    @Test
+    default void shouldFindStartedGameById() {
+        GameDetails startedGame = scoreboard().startGame(MEXICO_CANADA);
+        GameId id = startedGame.id();
+
+        GameDetails foundGame = scoreboard().getGame(id);
+        TeamPair teamsOfFoundGame = foundGame.teams();
+
+        assertThat(teamsOfFoundGame).isEqualTo(MEXICO_CANADA);
     }
 
     private List<TeamPair> findTeamsInSummary() {
