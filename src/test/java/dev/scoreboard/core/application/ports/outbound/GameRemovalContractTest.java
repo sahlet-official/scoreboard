@@ -49,6 +49,17 @@ public interface GameRemovalContractTest {
         assertThat(foundGame).isEmpty();
     }
 
+    @Test
+    default void shouldAddGameWithTeamsOfRemovedGame() {
+        GameId firstGameId = addNewGame();
+        tryToRemoveGame(firstGameId);
+
+        GameId secondGameId = addNewGame();
+        Optional<Game> foundGame = gameRepository().findGame(secondGameId);
+
+        assertThat(foundGame).isPresent();
+    }
+
     private GameId addNewGame() {
         try {
             Game addedGame = gameRepository().addGameWithUniqueTeams(NEW_GAME);
