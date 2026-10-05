@@ -119,4 +119,33 @@ public interface ScoreUpdateContractTest {
 
         assertThat(storedScore).contains(NEW_GAME.score());
     }
+
+    @Test
+    default void shouldKeepStoredScoreRevisionWhenScoreIsRejected() {
+        GameId id = addNewGame();
+        GameScore scoreWithRevisionAfterNext = new GameScore(id, ANOTHER_SCORE, NEXT_SCORE_REVISION + 1);
+
+        tryToUpdateScore(scoreWithRevisionAfterNext);
+        int storedScoreRevision = findStoredGame().getScoreRevision();
+
+        assertThat(storedScoreRevision).isEqualTo(NEW_GAME.scoreRevision());
+    }
+
+    private GameId addNewGame() {
+        try {
+            Game addedGame = gameRepository().addGameWithUniqueTeams(NEW_GAME);
+            return addedGame.getId();
+        } catch (TeamsNotUniqueException exception) {
+            throw new AssertionError("New game was rejected", exception);
+        }
+    }
+
+    private Throwable tryToUpdateScore(GameScore gameScore) {
+        return catchThrowable(() -> gameRepository().updateScoreIfNextRevision(gameScore));
+    }
+
+    private Game findStoredGame() {
+        Optional<Game> foundGame = gameRepository().findGame(NEW_GAME.teams());
+        return foundGame.orElseThrow();
+    }
 }
