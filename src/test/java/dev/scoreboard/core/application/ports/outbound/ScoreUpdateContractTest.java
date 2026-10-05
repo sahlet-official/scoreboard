@@ -3,7 +3,6 @@ package dev.scoreboard.core.application.ports.outbound;
 import static dev.scoreboard.core.application.ports.outbound.GameRepositoryTestData.*;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.catchThrowable;
-import static org.assertj.core.api.Assertions.catchThrowableOfType;
 
 import dev.scoreboard.core.application.ports.outbound.exceptions.GameMissingException;
 import dev.scoreboard.core.application.ports.outbound.exceptions.ScoreRevisionConflictException;
@@ -24,9 +23,7 @@ public interface ScoreUpdateContractTest {
     default void shouldRejectScoreOfGameThatWasNotAdded() {
         GameScore scoreOfUnknownGame = new GameScore(UNKNOWN_GAME_ID, SCORE, SCORE_REVISION);
 
-        Throwable failure = catchThrowable(
-            () -> gameRepository().updateScoreIfNextRevision(scoreOfUnknownGame)
-        );
+        Throwable failure = tryToUpdateScore(scoreOfUnknownGame);
 
         assertThat(failure).isInstanceOf(GameMissingException.class);
     }
@@ -35,68 +32,54 @@ public interface ScoreUpdateContractTest {
     default void shouldReportIdOfGameThatWasNotAddedWhenScoreIsRejected() {
         GameScore scoreOfUnknownGame = new GameScore(UNKNOWN_GAME_ID, SCORE, SCORE_REVISION);
 
-        GameMissingException exception = catchThrowableOfType(
-            GameMissingException.class,
-            () -> gameRepository().updateScoreIfNextRevision(scoreOfUnknownGame)
-        );
+        GameMissingException exception = (GameMissingException) tryToUpdateScore(scoreOfUnknownGame);
         GameId reportedId = exception.getGameId();
 
         assertThat(reportedId).isEqualTo(UNKNOWN_GAME_ID);
     }
 
     @Test
-    default void shouldStoreScoreSentWithNextRevision()
-            throws TeamsNotUniqueException, GameMissingException, ScoreRevisionConflictException {
-        Game addedGame = gameRepository().addGameWithUniqueTeams(NEW_GAME);
-        GameId id = addedGame.getId();
+    default void shouldStoreScoreSentWithNextRevision() {
+        GameId id = addNewGame();
         GameScore scoreWithNextRevision = new GameScore(id, ANOTHER_SCORE, NEXT_SCORE_REVISION);
 
-        gameRepository().updateScoreIfNextRevision(scoreWithNextRevision);
-        Optional<Game> foundGame = gameRepository().findGame(id);
-        Optional<Score> storedScore = foundGame.map(Game::getScore);
+        tryToUpdateScore(scoreWithNextRevision);
+        Score storedScore = findStoredGame().getScore();
 
-        assertThat(storedScore).contains(ANOTHER_SCORE);
+        assertThat(storedScore).isEqualTo(ANOTHER_SCORE);
     }
 
     @Test
-    default void shouldStoreNextRevisionSentWithScore()
-            throws TeamsNotUniqueException, GameMissingException, ScoreRevisionConflictException {
-        Game addedGame = gameRepository().addGameWithUniqueTeams(NEW_GAME);
-        GameId id = addedGame.getId();
+    default void shouldStoreNextRevisionSentWithScore() {
+        GameId id = addNewGame();
         GameScore scoreWithNextRevision = new GameScore(id, ANOTHER_SCORE, NEXT_SCORE_REVISION);
 
-        gameRepository().updateScoreIfNextRevision(scoreWithNextRevision);
-        Optional<Game> foundGame = gameRepository().findGame(id);
-        Optional<Integer> storedScoreRevision = foundGame.map(Game::getScoreRevision);
+        tryToUpdateScore(scoreWithNextRevision);
+        int storedScoreRevision = findStoredGame().getScoreRevision();
 
-        assertThat(storedScoreRevision).contains(NEXT_SCORE_REVISION);
+        assertThat(storedScoreRevision).isEqualTo(NEXT_SCORE_REVISION);
     }
 
     @ParameterizedTest
     @ValueSource(ints = {
         0, SCORE_REVISION - 1, SCORE_REVISION, NEXT_SCORE_REVISION + 1, Integer.MAX_VALUE
     })
-    default void shouldRejectScoreSentWithRevisionThatIsNotNext(int revisionThatIsNotNext)
-            throws TeamsNotUniqueException {
-        Game addedGame = gameRepository().addGameWithUniqueTeams(NEW_GAME);
-        GameId id = addedGame.getId();
+    default void shouldRejectScoreSentWithRevisionThatIsNotNext(int revisionThatIsNotNext) {
+        GameId id = addNewGame();
         GameScore gameScore = new GameScore(id, ANOTHER_SCORE, revisionThatIsNotNext);
 
-        Throwable failure = catchThrowable(() -> gameRepository().updateScoreIfNextRevision(gameScore));
+        Throwable failure = tryToUpdateScore(gameScore);
 
         assertThat(failure).isInstanceOf(ScoreRevisionConflictException.class);
     }
 
     @Test
-    default void shouldReportCurrentGameWhenScoreIsRejected() throws TeamsNotUniqueException {
-        Game addedGame = gameRepository().addGameWithUniqueTeams(NEW_GAME);
-        GameId id = addedGame.getId();
+    default void shouldReportCurrentGameWhenScoreIsRejected() {
+        GameId id = addNewGame();
         GameScore scoreWithCurrentRevision = new GameScore(id, ANOTHER_SCORE, NEW_GAME.scoreRevision());
 
-        ScoreRevisionConflictException exception = catchThrowableOfType(
-            ScoreRevisionConflictException.class,
-            () -> gameRepository().updateScoreIfNextRevision(scoreWithCurrentRevision)
-        );
+        ScoreRevisionConflictException exception =
+            (ScoreRevisionConflictException) tryToUpdateScore(scoreWithCurrentRevision);
         Game currentGame = exception.getCurrentGame();
 
         boolean reportsId = currentGame.getId().equals(id);
@@ -108,16 +91,14 @@ public interface ScoreUpdateContractTest {
     }
 
     @Test
-    default void shouldKeepStoredScoreWhenScoreIsRejected() throws TeamsNotUniqueException {
-        Game addedGame = gameRepository().addGameWithUniqueTeams(NEW_GAME);
-        GameId id = addedGame.getId();
+    default void shouldKeepStoredScoreWhenScoreIsRejected() {
+        GameId id = addNewGame();
         GameScore scoreWithCurrentRevision = new GameScore(id, ANOTHER_SCORE, NEW_GAME.scoreRevision());
-        catchThrowable(() -> gameRepository().updateScoreIfNextRevision(scoreWithCurrentRevision));
 
-        Optional<Game> foundGame = gameRepository().findGame(id);
-        Optional<Score> storedScore = foundGame.map(Game::getScore);
+        tryToUpdateScore(scoreWithCurrentRevision);
+        Score storedScore = findStoredGame().getScore();
 
-        assertThat(storedScore).contains(NEW_GAME.score());
+        assertThat(storedScore).isEqualTo(NEW_GAME.score());
     }
 
     @Test
