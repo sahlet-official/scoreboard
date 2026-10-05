@@ -116,6 +116,17 @@ public interface GameAdditionContractTest {
     }
 
     @Test
+    default void shouldAddGameWithTeamThatWasFreeInRejectedGame() throws TeamsNotUniqueException {
+        gameRepository().addGameWithUniqueTeams(NEW_GAME);
+        catchThrowable(() -> gameRepository().addGameWithUniqueTeams(NEW_GAME_WITH_SAME_AWAY_TEAM));
+
+        Game addedGame = gameRepository().addGameWithUniqueTeams(ANOTHER_NEW_GAME);
+        TeamPair teamsOfAddedGame = addedGame.getTeams();
+
+        assertThat(teamsOfAddedGame).isEqualTo(ANOTHER_NEW_GAME.teams());
+    }
+
+    @Test
     default void shouldFindAddedGameById() throws TeamsNotUniqueException {
         Game addedGame = gameRepository().addGameWithUniqueTeams(NEW_GAME);
         GameId id = addedGame.getId();
