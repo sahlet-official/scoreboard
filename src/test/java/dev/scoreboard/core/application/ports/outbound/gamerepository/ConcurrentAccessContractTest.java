@@ -2,8 +2,10 @@ package dev.scoreboard.core.application.ports.outbound.gamerepository;
 
 import static dev.scoreboard.core.application.ports.outbound.gamerepository.GameRepositoryTestData.*;
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.catchThrowable;
 
 import dev.scoreboard.core.application.ports.outbound.GameRepository;
+import dev.scoreboard.core.application.ports.outbound.exceptions.GameMissingException;
 import dev.scoreboard.core.application.ports.outbound.exceptions.TeamsNotUniqueException;
 import dev.scoreboard.core.domain.entities.Game;
 import dev.scoreboard.core.domain.valueobjects.GameId;
@@ -70,12 +72,44 @@ public interface ConcurrentAccessContractTest {
         assertThat(successfulRemovals).isEqualTo(1);
     }
 
+    @RepeatedTest(REPETITIONS)
+    default void shouldFindGamesWithoutFailureWhileGamesAreAddedAndRemoved() {
+        int timesPerThread = 1000;
+        ThrowingCallable writing = () -> addAndRemoveGame(timesPerThread);
+        ThrowingCallable reading = () -> findGames(timesPerThread);
+
+        Throwable failure = catchThrowable(() -> countSuccessfulAttempts(writing, reading));
+
+        assertThat(failure).isNull();
+    }
+
     private GameId addNewGame() {
         try {
             Game addedGame = gameRepository().addGameWithUniqueTeams(NEW_GAME);
             return addedGame.getId();
         } catch (TeamsNotUniqueException exception) {
             throw new AssertionError("New game was rejected", exception);
+        }
+    }
+
+    private void addAndRemoveGame(int times) {
+        for (int time = 0; time < times; time++) {
+            try {
+                Game addedGame = gameRepository().addGameWithUniqueTeams(NEW_GAME);
+                GameId id = addedGame.getId();
+                gameRepository().removeGame(id);
+            } catch (TeamsNotUniqueException teamsAreTakenByAnotherThread) {
+                continue;
+            } catch (GameMissingException exception) {
+                throw new AssertionError("Added game is missing", exception);
+            }
+        }
+    }
+
+    private void findGames(int times) {
+        for (int time = 0; time < times; time++) {
+            gameRepository().findAllGames();
+            gameRepository().findGame(NEW_GAME.teams());
         }
     }
 

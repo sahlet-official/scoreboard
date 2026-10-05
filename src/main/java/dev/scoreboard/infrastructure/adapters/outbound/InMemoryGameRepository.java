@@ -99,7 +99,7 @@ public class InMemoryGameRepository implements GameRepository {
     }
 
     @Override
-    public Optional<Game> findGame(GameId id) {
+    public synchronized Optional<Game> findGame(GameId id) {
         StoredGame storedGame = storedGames.get(id);
         if (storedGame == null) {
             return Optional.empty();
@@ -110,7 +110,7 @@ public class InMemoryGameRepository implements GameRepository {
     }
 
     @Override
-    public Optional<Game> findGame(TeamPair teams) {
+    public synchronized Optional<Game> findGame(TeamPair teams) {
         TeamName homeTeam = teams.homeTeam();
         GameId idOfGameWithHomeTeam = gameIdsByTeamName.get(homeTeam);
         if (idOfGameWithHomeTeam == null) {
@@ -129,7 +129,7 @@ public class InMemoryGameRepository implements GameRepository {
     }
 
     @Override
-    public List<Game> findAllGames() {
+    public synchronized List<Game> findAllGames() {
         Collection<StoredGame> allStoredGames = storedGames.values();
 
         List<Game> games = new ArrayList<>();
