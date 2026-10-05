@@ -1,5 +1,8 @@
 package dev.scoreboard.core.application.ports.outbound;
 
 public interface GameRepositoryContractTest
-        extends GameAdditionContractTest, ScoreUpdateContractTest, StoredGameIsolationContractTest {
+        extends GameAdditionContractTest,
+                ScoreUpdateContractTest,
+                GameRemovalContractTest,
+                StoredGameIsolationContractTest {
 }

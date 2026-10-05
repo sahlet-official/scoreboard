@@ -84,6 +84,11 @@ public class InMemoryGameRepository implements GameRepository {
 
     @Override
     public void removeGame(GameId id) throws GameMissingException {
+        StoredGame storedGame = storedGames.get(id);
+        if (storedGame == null) {
+            throw new GameMissingException(id);
+        }
+
         throw new UnsupportedOperationException("Not implemented yet");
     }
 
