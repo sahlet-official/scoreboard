@@ -1,11 +1,6 @@
 package dev.scoreboard.core.application.ports.outbound;
 
-import static dev.scoreboard.core.application.ports.outbound.GameRepositoryTestData.ANOTHER_NEW_GAME;
-import static dev.scoreboard.core.application.ports.outbound.GameRepositoryTestData.CANADA_MEXICO;
-import static dev.scoreboard.core.application.ports.outbound.GameRepositoryTestData.NEW_GAME;
-import static dev.scoreboard.core.application.ports.outbound.GameRepositoryTestData.NEW_GAME_WITH_SAME_AWAY_TEAM;
-import static dev.scoreboard.core.application.ports.outbound.GameRepositoryTestData.NEW_GAME_WITH_SAME_HOME_TEAM;
-import static dev.scoreboard.core.application.ports.outbound.GameRepositoryTestData.UNKNOWN_GAME_ID;
+import static dev.scoreboard.core.application.ports.outbound.GameRepositoryTestData.*;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.catchThrowable;
 import static org.assertj.core.api.Assertions.catchThrowableOfType;
@@ -79,6 +74,17 @@ public interface GameAdditionContractTest {
 
         Throwable failure = catchThrowable(
             () -> gameRepository().addGameWithUniqueTeams(NEW_GAME_WITH_SAME_AWAY_TEAM)
+        );
+
+        assertThat(failure).isInstanceOf(TeamsNotUniqueException.class);
+    }
+
+    @Test
+    default void shouldRejectGameWithSameTeamsInReverseOrder() throws TeamsNotUniqueException {
+        gameRepository().addGameWithUniqueTeams(NEW_GAME);
+
+        Throwable failure = catchThrowable(
+            () -> gameRepository().addGameWithUniqueTeams(NEW_GAME_WITH_SAME_TEAMS_IN_REVERSE_ORDER)
         );
 
         assertThat(failure).isInstanceOf(TeamsNotUniqueException.class);

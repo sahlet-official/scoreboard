@@ -21,6 +21,9 @@ final class GameRepositoryTestData {
     static final NewGame ANOTHER_NEW_GAME = new NewGame(SPAIN_BRAZIL, SCORE, SCORE_REVISION);
     static final NewGame NEW_GAME_WITH_SAME_HOME_TEAM = new NewGame(MEXICO_BRAZIL, SCORE, SCORE_REVISION);
     static final NewGame NEW_GAME_WITH_SAME_AWAY_TEAM = new NewGame(SPAIN_CANADA, SCORE, SCORE_REVISION);
+    static final NewGame NEW_GAME_WITH_SAME_TEAMS_IN_REVERSE_ORDER = new NewGame(
+        CANADA_MEXICO, SCORE, SCORE_REVISION
+    );
 
     static final GameId UNKNOWN_GAME_ID = new GameId(404);
 
