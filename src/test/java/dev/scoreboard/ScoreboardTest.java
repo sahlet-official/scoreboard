@@ -44,6 +44,17 @@ public interface ScoreboardTest {
         assertThat(teamsOfFoundGame).isEqualTo(MEXICO_CANADA);
     }
 
+    @Test
+    default void shouldFindStartedGameByTeams() {
+        GameDetails startedGame = scoreboard().startGame(MEXICO_CANADA);
+        GameId id = startedGame.id();
+
+        GameDetails foundGame = scoreboard().getGame(MEXICO_CANADA);
+        GameId idOfFoundGame = foundGame.id();
+
+        assertThat(idOfFoundGame).isEqualTo(id);
+    }
+
     private List<TeamPair> findTeamsInSummary() {
         Summary summary = scoreboard().getSummary();
         List<GameSummary> gamesInSummary = summary.games();
