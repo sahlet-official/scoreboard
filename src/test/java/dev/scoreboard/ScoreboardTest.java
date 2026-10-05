@@ -15,6 +15,11 @@ import org.junit.jupiter.api.Test;
 
 public interface ScoreboardTest {
     TeamPair MEXICO_CANADA = TeamPair.of("Mexico", "Canada");
+    TeamPair SPAIN_BRAZIL = TeamPair.of("Spain", "Brazil");
+    TeamPair GERMANY_FRANCE = TeamPair.of("Germany", "France");
+    TeamPair URUGUAY_ITALY = TeamPair.of("Uruguay", "Italy");
+    TeamPair ARGENTINA_AUSTRALIA = TeamPair.of("Argentina", "Australia");
+
     Score SCORE = new Score(0, 5);
 
     Scoreboard scoreboard();
@@ -77,6 +82,31 @@ public interface ScoreboardTest {
         List<TeamPair> teamsInSummary = findTeamsInSummary();
 
         assertThat(teamsInSummary).isEmpty();
+    }
+
+    @Test
+    default void shouldOrderSummaryAsInExampleFromTask() {
+        startGameWithScore(MEXICO_CANADA, 0, 5);
+        startGameWithScore(SPAIN_BRAZIL, 10, 2);
+        startGameWithScore(GERMANY_FRANCE, 2, 2);
+        startGameWithScore(URUGUAY_ITALY, 6, 6);
+        startGameWithScore(ARGENTINA_AUSTRALIA, 3, 1);
+
+        List<TeamPair> teamsInSummary = findTeamsInSummary();
+
+        assertThat(teamsInSummary).containsExactly(
+            URUGUAY_ITALY,
+            SPAIN_BRAZIL,
+            MEXICO_CANADA,
+            ARGENTINA_AUSTRALIA,
+            GERMANY_FRANCE
+        );
+    }
+
+    private void startGameWithScore(TeamPair teams, int homeScore, int awayScore) {
+        GameDetails game = scoreboard().startGame(teams);
+        Score score = new Score(homeScore, awayScore);
+        updateScore(game, score);
     }
 
     private void updateScore(GameDetails game, Score score) {
