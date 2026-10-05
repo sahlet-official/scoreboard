@@ -6,6 +6,8 @@ import dev.scoreboard.core.application.ports.inbound.models.GameDetails;
 import dev.scoreboard.core.application.ports.inbound.models.GameSummary;
 import dev.scoreboard.core.application.ports.inbound.models.Summary;
 import dev.scoreboard.core.domain.valueobjects.GameId;
+import dev.scoreboard.core.domain.valueobjects.GameScore;
+import dev.scoreboard.core.domain.valueobjects.Score;
 import dev.scoreboard.core.domain.valueobjects.TeamPair;
 import java.util.ArrayList;
 import java.util.List;
@@ -13,6 +15,7 @@ import org.junit.jupiter.api.Test;
 
 public interface ScoreboardTest {
     TeamPair MEXICO_CANADA = TeamPair.of("Mexico", "Canada");
+    Score SCORE = new Score(0, 5);
 
     Scoreboard scoreboard();
 
@@ -53,6 +56,29 @@ public interface ScoreboardTest {
         GameId idOfFoundGame = foundGame.id();
 
         assertThat(idOfFoundGame).isEqualTo(id);
+    }
+
+    @Test
+    default void shouldShowUpdatedScoreOfGame() {
+        GameDetails game = scoreboard().startGame(MEXICO_CANADA);
+
+        updateScore(game, SCORE);
+        Score scoreOfGame = findScore(game);
+
+        assertThat(scoreOfGame).isEqualTo(SCORE);
+    }
+
+    private void updateScore(GameDetails game, Score score) {
+        GameId id = game.id();
+        int nextScoreRevision = game.scoreRevision() + 1;
+        GameScore gameScore = new GameScore(id, score, nextScoreRevision);
+        scoreboard().updateScore(gameScore);
+    }
+
+    private Score findScore(GameDetails game) {
+        GameId id = game.id();
+        GameDetails foundGame = scoreboard().getGame(id);
+        return foundGame.score();
     }
 
     private List<TeamPair> findTeamsInSummary() {
