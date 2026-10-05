@@ -4,6 +4,7 @@ import static dev.scoreboard.core.application.ports.outbound.gamerepository.Game
 import static org.assertj.core.api.Assertions.assertThat;
 
 import dev.scoreboard.core.application.ports.outbound.GameRepository;
+import dev.scoreboard.core.domain.entities.Game;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.concurrent.Callable;
@@ -31,6 +32,18 @@ public interface ConcurrentAccessContractTest {
         int successfulAdditions = countSuccessfulAttempts(additionOfGame, additionOfGameWithSameTeam);
 
         assertThat(successfulAdditions).isEqualTo(1);
+    }
+
+    @RepeatedTest(REPETITIONS)
+    default void shouldStoreOnlyOneOfGamesWithSameTeamAddedAtTheSameTime() {
+        ThrowingCallable additionOfGame = () -> gameRepository().addGameWithUniqueTeams(NEW_GAME);
+        ThrowingCallable additionOfGameWithSameTeam =
+            () -> gameRepository().addGameWithUniqueTeams(NEW_GAME_WITH_SAME_HOME_TEAM);
+
+        countSuccessfulAttempts(additionOfGame, additionOfGameWithSameTeam);
+        List<Game> storedGames = gameRepository().findAllGames();
+
+        assertThat(storedGames).hasSize(1);
     }
 
     private static int countSuccessfulAttempts(ThrowingCallable... attempts) {
