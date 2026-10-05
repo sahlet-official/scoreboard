@@ -1,8 +1,6 @@
 package dev.scoreboard.core.application.ports.outbound;
 
-import static dev.scoreboard.core.application.ports.outbound.GameRepositoryTestData.ANOTHER_SCORE;
-import static dev.scoreboard.core.application.ports.outbound.GameRepositoryTestData.NEW_GAME;
-import static dev.scoreboard.core.application.ports.outbound.GameRepositoryTestData.NEXT_SCORE_REVISION;
+import static dev.scoreboard.core.application.ports.outbound.GameRepositoryTestData.*;
 import static org.assertj.core.api.Assertions.assertThat;
 
 import dev.scoreboard.core.application.ports.outbound.exceptions.TeamsNotUniqueException;
