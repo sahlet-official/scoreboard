@@ -6,7 +6,7 @@ import static org.assertj.core.api.Assertions.catchThrowableOfType;
 
 import dev.scoreboard.core.application.ports.inbound.exceptions.GameNotFoundException;
 import dev.scoreboard.core.application.ports.inbound.exceptions.ScoreRevisionGapException;
-import dev.scoreboard.core.application.ports.inbound.exceptions.StaleScoreRevisionException;
+import dev.scoreboard.core.application.ports.inbound.exceptions.ScoreRevisionStaleException;
 import dev.scoreboard.core.application.ports.inbound.models.UpdateScoreResult;
 import dev.scoreboard.core.application.usecases.stubs.ScoreUpdateRepositoryStub;
 import dev.scoreboard.core.domain.entities.Game;
@@ -129,7 +129,7 @@ class ScoreUpdateUseCaseTest {
             () -> scoreUpdateUseCase.execute(DIFFERENT_SCORE_WITH_CURRENT_REVISION)
         );
 
-        assertThat(failure).isInstanceOf(StaleScoreRevisionException.class);
+        assertThat(failure).isInstanceOf(ScoreRevisionStaleException.class);
     }
 
     @Test
@@ -140,15 +140,15 @@ class ScoreUpdateUseCaseTest {
             () -> scoreUpdateUseCase.execute(SCORE_WITH_PREVIOUS_REVISION)
         );
 
-        assertThat(failure).isInstanceOf(StaleScoreRevisionException.class);
+        assertThat(failure).isInstanceOf(ScoreRevisionStaleException.class);
     }
 
     @Test
     void shouldReportReceivedRevisionAndCurrentScoreWhenRevisionIsStale() {
         scoreUpdateRepositoryStub.setGameInProgress(GAME_IN_PROGRESS);
 
-        StaleScoreRevisionException exception = catchThrowableOfType(
-            StaleScoreRevisionException.class,
+        ScoreRevisionStaleException exception = catchThrowableOfType(
+            ScoreRevisionStaleException.class,
             () -> scoreUpdateUseCase.execute(SCORE_WITH_PREVIOUS_REVISION)
         );
         boolean reportsReceivedRevision = exception.getReceivedRevision() == PREVIOUS_REVISION;

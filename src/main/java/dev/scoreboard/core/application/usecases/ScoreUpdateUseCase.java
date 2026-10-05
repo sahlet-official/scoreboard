@@ -4,7 +4,7 @@ import dev.scoreboard.core.application.ports.inbound.ScoreUpdatePort;
 import dev.scoreboard.core.application.ports.inbound.exceptions.GameNotFoundException;
 import dev.scoreboard.core.application.ports.inbound.exceptions.ScoreRevisionGapException;
 import dev.scoreboard.core.application.ports.inbound.exceptions.ScoreboardException;
-import dev.scoreboard.core.application.ports.inbound.exceptions.StaleScoreRevisionException;
+import dev.scoreboard.core.application.ports.inbound.exceptions.ScoreRevisionStaleException;
 import dev.scoreboard.core.application.ports.inbound.models.UpdateScoreResult;
 import dev.scoreboard.core.application.ports.outbound.GameRepository;
 import dev.scoreboard.core.application.ports.outbound.exceptions.GameMissingException;
@@ -56,7 +56,7 @@ public class ScoreUpdateUseCase implements ScoreUpdatePort {
 
         boolean revisionIsStale = receivedRevision <= currentRevision;
         if (revisionIsStale) {
-            return new StaleScoreRevisionException(receivedRevision, currentGameScore);
+            return new ScoreRevisionStaleException(receivedRevision, currentGameScore);
         }
 
         return new ScoreRevisionGapException(receivedRevision, currentGameScore);

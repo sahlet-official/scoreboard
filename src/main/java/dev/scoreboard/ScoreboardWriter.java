@@ -3,7 +3,7 @@ package dev.scoreboard;
 import dev.scoreboard.core.application.ports.inbound.exceptions.GameAlreadyInProgressException;
 import dev.scoreboard.core.application.ports.inbound.exceptions.GameNotFoundException;
 import dev.scoreboard.core.application.ports.inbound.exceptions.ScoreRevisionGapException;
-import dev.scoreboard.core.application.ports.inbound.exceptions.StaleScoreRevisionException;
+import dev.scoreboard.core.application.ports.inbound.exceptions.ScoreRevisionStaleException;
 import dev.scoreboard.core.application.ports.inbound.exceptions.TeamAlreadyPlayingException;
 
 import dev.scoreboard.core.application.ports.inbound.models.GameDetails;
@@ -26,7 +26,7 @@ public interface ScoreboardWriter {
      * Sending the current revision with the current score changes nothing.
      *
      * @throws GameNotFoundException if there is no such game in progress
-     * @throws StaleScoreRevisionException if the revision is less than or equal to the current one
+     * @throws ScoreRevisionStaleException if the revision is less than or equal to the current one
      * @throws ScoreRevisionGapException if the revision is more than one ahead of the current one
      */
     UpdateScoreResult updateScore(GameScore gameScore);

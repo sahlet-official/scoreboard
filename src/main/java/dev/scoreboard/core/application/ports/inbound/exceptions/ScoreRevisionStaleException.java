@@ -2,11 +2,11 @@ package dev.scoreboard.core.application.ports.inbound.exceptions;
 
 import dev.scoreboard.core.domain.valueobjects.GameScore;
 
-public class StaleScoreRevisionException extends ScoreboardException {
+public class ScoreRevisionStaleException extends ScoreboardException {
     private final int receivedRevision;
     private final GameScore currentScore;
 
-    public StaleScoreRevisionException(int receivedRevision, GameScore currentScore) {
+    public ScoreRevisionStaleException(int receivedRevision, GameScore currentScore) {
         super(messageFor(receivedRevision, currentScore));
         this.receivedRevision = receivedRevision;
         this.currentScore = currentScore;
