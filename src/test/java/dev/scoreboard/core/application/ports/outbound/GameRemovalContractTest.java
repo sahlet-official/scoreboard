@@ -18,6 +18,14 @@ public interface GameRemovalContractTest {
         assertThat(failure).isInstanceOf(GameMissingException.class);
     }
 
+    @Test
+    default void shouldReportIdOfGameThatWasNotAddedWhenRemovalIsRejected() {
+        GameMissingException exception = (GameMissingException) tryToRemoveGame(UNKNOWN_GAME_ID);
+        GameId reportedId = exception.getGameId();
+
+        assertThat(reportedId).isEqualTo(UNKNOWN_GAME_ID);
+    }
+
     private Throwable tryToRemoveGame(GameId id) {
         return catchThrowable(() -> gameRepository().removeGame(id));
     }
