@@ -14,6 +14,8 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.params.ParameterizedTest;
+import org.junit.jupiter.params.provider.FieldSource;
 
 public interface GameAdditionContractTest {
     GameRepository gameRepository();
@@ -96,6 +98,18 @@ public interface GameAdditionContractTest {
         GameId idOfConflictingGame = exception.getConflictingGame().getId();
 
         assertThat(idOfConflictingGame).isEqualTo(idOfGameInProgress);
+    }
+
+    @ParameterizedTest
+    @FieldSource("dev.scoreboard.core.application.ports.outbound.gamerepository.GameRepositoryTestData#NEW_GAMES_WITH_SAME_TEAM")
+    default void shouldReportTeamsOfGameWhereTeamIsPlayingWhenGameIsRejected(NewGame rejectedGame)
+            throws TeamsNotUniqueException {
+        Game gameInProgress = gameRepository().addGameWithUniqueTeams(NEW_GAME);
+
+        TeamsNotUniqueException exception = (TeamsNotUniqueException) tryToAddGame(rejectedGame);
+        TeamPair teamsOfConflictingGame = exception.getConflictingGame().getTeams();
+
+        assertThat(teamsOfConflictingGame).isEqualTo(gameInProgress.getTeams());
     }
 
     @Test

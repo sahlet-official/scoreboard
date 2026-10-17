@@ -4,6 +4,7 @@ import dev.scoreboard.core.application.ports.outbound.models.NewGame;
 import dev.scoreboard.core.domain.valueobjects.GameId;
 import dev.scoreboard.core.domain.valueobjects.Score;
 import dev.scoreboard.core.domain.valueobjects.TeamPair;
+import java.util.List;
 
 public final class GameRepositoryTestData {
     public static final TeamPair MEXICO_CANADA = TeamPair.of("Mexico", "Canada");
@@ -23,6 +24,12 @@ public final class GameRepositoryTestData {
     public static final NewGame NEW_GAME_WITH_SAME_AWAY_TEAM = new NewGame(SPAIN_CANADA, SCORE, SCORE_REVISION);
     public static final NewGame NEW_GAME_WITH_SAME_TEAMS_IN_REVERSE_ORDER = new NewGame(
         CANADA_MEXICO, SCORE, SCORE_REVISION
+    );
+
+    public static final List<NewGame> NEW_GAMES_WITH_SAME_TEAM = List.of(
+        NEW_GAME_WITH_SAME_HOME_TEAM,
+        NEW_GAME_WITH_SAME_AWAY_TEAM,
+        NEW_GAME_WITH_SAME_TEAMS_IN_REVERSE_ORDER
     );
 
     public static final GameId UNKNOWN_GAME_ID = new GameId(404);
