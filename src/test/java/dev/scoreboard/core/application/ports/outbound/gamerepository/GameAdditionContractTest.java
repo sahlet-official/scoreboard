@@ -113,6 +113,20 @@ public interface GameAdditionContractTest {
     }
 
     @Test
+    default void shouldReportGameWhereTeamIsPlayingWhenSeveralGamesAreInProgress()
+            throws TeamsNotUniqueException {
+        gameRepository().addGameWithUniqueTeams(ANOTHER_NEW_GAME);
+        Game gameInProgress = gameRepository().addGameWithUniqueTeams(NEW_GAME);
+        GameId idOfGameInProgress = gameInProgress.getId();
+
+        TeamsNotUniqueException exception =
+            (TeamsNotUniqueException) tryToAddGame(NEW_GAME_WITH_SAME_TEAMS_IN_REVERSE_ORDER);
+        GameId idOfConflictingGame = exception.getConflictingGame().getId();
+
+        assertThat(idOfConflictingGame).isEqualTo(idOfGameInProgress);
+    }
+
+    @Test
     default void shouldNotStoreRejectedGame() throws TeamsNotUniqueException {
         gameRepository().addGameWithUniqueTeams(NEW_GAME);
         tryToAddGame(NEW_GAME_WITH_SAME_AWAY_TEAM);
