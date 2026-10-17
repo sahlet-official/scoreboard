@@ -55,17 +55,19 @@ public class InMemoryGameRepository implements GameRepository {
 
         synchronized (this.writeLock) {
             Snapshot currentSnapshot = this.snapshot;
-            ensureTeamIsNotPlaying(currentSnapshot, homeTeam);
-            ensureTeamIsNotPlaying(currentSnapshot, awayTeam);
+            InMemoryGameRepository.ensureTeamIsNotPlaying(currentSnapshot, homeTeam);
+            InMemoryGameRepository.ensureTeamIsNotPlaying(currentSnapshot, awayTeam);
 
             GameId id = new GameId(this.nextId);
             StoredGame storedGame = new StoredGame(id, teams, score, scoreRevision);
-            Snapshot newSnapshot = createSnapshotWithAddedGame(currentSnapshot, storedGame);
+            Snapshot newSnapshot = InMemoryGameRepository.createSnapshotWithAddedGame(currentSnapshot, storedGame);
 
             this.nextId++;
             this.snapshot = newSnapshot;
 
-            return createGame(storedGame);
+            Game result = InMemoryGameRepository.createGame(storedGame);
+
+            return result;
         }
     }
 
@@ -77,7 +79,7 @@ public class InMemoryGameRepository implements GameRepository {
         }
 
         StoredGame storedGameWithTeam = snapshot.storedGames().get(idOfGameWithTeam);
-        Game gameWithTeam = createGame(storedGameWithTeam);
+        Game gameWithTeam = InMemoryGameRepository.createGame(storedGameWithTeam);
         throw new TeamsNotUniqueException(gameWithTeam);
     }
 
@@ -98,13 +100,13 @@ public class InMemoryGameRepository implements GameRepository {
             int storedScoreRevision = storedGame.scoreRevision();
             boolean revisionIsNext = newScoreRevision - 1 == storedScoreRevision;
             if (!revisionIsNext) {
-                Game currentGame = createGame(storedGame);
+                Game currentGame = InMemoryGameRepository.createGame(storedGame);
                 throw new ScoreRevisionConflictException(currentGame);
             }
 
             TeamPair teams = storedGame.teams();
             StoredGame updatedGame = new StoredGame(gameId, teams, newScore, newScoreRevision);
-            Snapshot newSnapshot = createSnapshotWithUpdatedGame(currentSnapshot, updatedGame);
+            Snapshot newSnapshot = InMemoryGameRepository.createSnapshotWithUpdatedGame(currentSnapshot, updatedGame);
 
             this.snapshot = newSnapshot;
         }
@@ -119,7 +121,7 @@ public class InMemoryGameRepository implements GameRepository {
                 throw new GameMissingException(id);
             }
 
-            Snapshot newSnapshot = createSnapshotWithoutGame(currentSnapshot, storedGame);
+            Snapshot newSnapshot = InMemoryGameRepository.createSnapshotWithoutGame(currentSnapshot, storedGame);
 
             this.snapshot = newSnapshot;
         }
@@ -133,7 +135,7 @@ public class InMemoryGameRepository implements GameRepository {
             return Optional.empty();
         }
 
-        Game game = createGame(storedGame);
+        Game game = InMemoryGameRepository.createGame(storedGame);
         return Optional.of(game);
     }
 
@@ -153,7 +155,7 @@ public class InMemoryGameRepository implements GameRepository {
             return Optional.empty();
         }
 
-        Game game = createGame(storedGameWithHomeTeam);
+        Game game = InMemoryGameRepository.createGame(storedGameWithHomeTeam);
         return Optional.of(game);
     }
 
@@ -164,7 +166,7 @@ public class InMemoryGameRepository implements GameRepository {
 
         List<Game> games = new ArrayList<>();
         for (StoredGame storedGame : allStoredGames) {
-            Game game = createGame(storedGame);
+            Game game = InMemoryGameRepository.createGame(storedGame);
             games.add(game);
         }
 
