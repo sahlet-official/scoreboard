@@ -158,6 +158,8 @@ scoreboard.finishGame(game.id());
 
 6. **A separate API layer.** Its own models and exceptions; the client no longer depends on internal packages (see trade-off 4).
 
+7. **Split the repository port into a reader and a writer.** The reader gets `findAllGames`, the writer gets all the other methods. This repeats the split of the scoreboard interface (see decision 7) and lets the reader use a separate storage, for example replicas (see item 4).
+
 ## 7. Tests
 
 The solution was written with TDD: a test first, then the minimal code for it.
